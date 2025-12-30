@@ -3,40 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Apuntes Estructurados</title>
+    <title>EduPlat - Gestión de Apuntes</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
-        /* Sidebar Navegación */
         .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
         .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
-        /* Explorador */
         .explorer { width: 340px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
         .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        /* Items de lista */
-        .item { 
-            padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; 
-            display: flex; align-items: center; justify-content: space-between; 
-            font-size: 0.85em; transition: 0.2s; 
-        }
+        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; transition: 0.2s; }
         .item:hover { background: #f4f7f6; }
         .item.active { background: var(--primary) !important; color: white !important; }
-        
         .item-actions { display: none; gap: 8px; }
         .item:hover .item-actions { display: flex; }
         
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; filter: grayscale(1); transition: 0.2s; }
-        .btn-icon:hover { filter: grayscale(0); transform: scale(1.2); }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; }
         .btn-small { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
 
-        /* Editor */
         .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
         .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .editor-body { padding: 30px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
@@ -83,33 +73,33 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         let currentFolder = "General";
         let currentFileId = null;
         let userUid = null;
+        let unsubscribeFiles = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userUid = user.uid;
                 initCarpetas();
-                initArchivos(); // Carga archivos de la carpeta por defecto
+                initArchivos();
             } else { window.location.href = 'login.html'; }
         });
 
-        // --- CARPETAS ---
         function initCarpetas() {
             onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
                 const list = document.getElementById('folder-list');
                 list.innerHTML = '';
-                if(snap.empty) createFolder("General");
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
                     div.innerHTML = `
                         <span onclick="selectFolder('${d.id}')">📁 ${d.id}</span>
                         <div class="item-actions">
+                            <button class="btn-icon" onclick="renameFolder('${d.id}')">✏️</button>
                             <button class="btn-icon" onclick="deleteFolder('${d.id}')">🗑️</button>
                         </div>
                     `;
@@ -124,28 +114,33 @@
             document.getElementById('folder-label').innerText = name;
             document.getElementById('input-title').value = "";
             document.getElementById('textarea-body').value = "";
+            initArchivos();
             initCarpetas();
-            initArchivos(); // Re-escucha la colección 'archivos' dentro de esta carpeta
         };
 
-        async function createFolder(name) {
-            await setDoc(doc(db, "users", userUid, "folders", name), { created: serverTimestamp() });
-        }
+        window.renameFolder = async (oldName) => {
+            if (oldName === "General") return alert("No puedes renombrar General");
+            const newName = prompt("Nuevo nombre:", oldName);
+            if (newName && newName !== oldName) {
+                await setDoc(doc(db, "users", userUid, "folders", newName), { created: serverTimestamp() });
+                await deleteDoc(doc(db, "users", userUid, "folders", oldName));
+                selectFolder(newName);
+            }
+        };
 
         window.deleteFolder = async (name) => {
-            if (name === "General") return alert("No puedes borrar la carpeta principal.");
-            if (confirm(`¿Borrar carpeta "${name}"? (Asegúrate de borrar sus archivos primero)`)) {
+            if (name === "General") return alert("No puedes borrar General");
+            if (confirm(`¿Borrar carpeta ${name}?`)) {
                 await deleteDoc(doc(db, "users", userUid, "folders", name));
                 selectFolder("General");
             }
         };
 
-        // --- ARCHIVOS (Subcolección jerárquica) ---
         function initArchivos() {
-            // Ruta jerárquica: users > UID > folders > CarpetaNombre > archivos
-            const filesRef = collection(db, "users", userUid, "folders", currentFolder, "archivos");
+            if (unsubscribeFiles) unsubscribeFiles();
             
-            onSnapshot(filesRef, (snap) => {
+            const filesRef = collection(db, "users", userUid, "folders", currentFolder, "archivos");
+            unsubscribeFiles = onSnapshot(filesRef, (snap) => {
                 const list = document.getElementById('file-list');
                 list.innerHTML = '';
                 snap.forEach(d => {
@@ -164,17 +159,16 @@
 
         window.selectFile = async (id) => {
             currentFileId = id;
-            const docRef = doc(db, "users", userUid, "folders", currentFolder, "archivos", id);
-            const d = await getDoc(docRef);
+            const d = await getDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
             if(d.exists()){
                 document.getElementById('input-title').value = d.data().title;
                 document.getElementById('textarea-body').value = d.data().body;
+                initArchivos();
             }
-            initArchivos();
         };
 
         window.deleteFile = async (id) => {
-            if (confirm("¿Eliminar este apunte?")) {
+            if (confirm("¿Borrar archivo?")) {
                 await deleteDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
                 currentFileId = null;
                 document.getElementById('input-title').value = "";
@@ -182,10 +176,9 @@
             }
         };
 
-        // --- ACCIONES ---
         document.getElementById('add-folder').onclick = () => {
-            const n = prompt("Nombre de carpeta:");
-            if(n) createFolder(n);
+            const n = prompt("Nombre:");
+            if(n) setDoc(doc(db, "users", userUid, "folders", n), { created: serverTimestamp() });
         };
 
         document.getElementById('add-file').onclick = () => {
@@ -193,6 +186,31 @@
             document.getElementById('input-title').value = "";
             document.getElementById('textarea-body').value = "";
             document.getElementById('input-title').focus();
-        </script>
+        };
+
+        document.getElementById('save-btn').onclick = async () => {
+            const t = document.getElementById('input-title').value;
+            const b = document.getElementById('textarea-body').value;
+            if(!t) return alert("Pon un título");
+            if(!currentFileId) currentFileId = "file_" + Date.now();
+
+            const status = document.getElementById('save-status');
+            status.textContent = "Guardando...";
+            
+            try {
+                // RUTA CORRECTA: users > UID > folders > CarpetaNombre > archivos > ID_Archivo
+                await setDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", currentFileId), {
+                    title: t,
+                    body: b,
+                    updatedAt: serverTimestamp()
+                });
+                status.textContent = "Guardado ✅";
+                setTimeout(() => status.textContent = "", 2000);
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error";
+            }
+        };
+    </script>
 </body>
 </html>
