@@ -6,15 +6,13 @@
     <title>EduPlat - Iniciar Sesión</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
+        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
-        /* Mantenemos tu Sidebar para coherencia visual */
         .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
-        
-        /* Contenedor Central de Login */
         .main-login { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 30px; }
+        
         .login-card { 
             background: white; padding: 40px; border-radius: 12px; 
             border: 1px solid var(--border); text-align: center; 
@@ -22,42 +20,34 @@
         }
 
         .logo-large { font-size: 2.5rem; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
-        .login-card p { color: #666; margin-bottom: 30px; font-size: 0.95rem; }
-
-        /* Botón de Google Estilo EduPlat */
+        
+        /* Botón de Google con Logo */
         .btn-google { 
             display: flex; align-items: center; justify-content: center; gap: 12px;
             width: 100%; background: white; color: #333; border: 1px solid var(--border);
             padding: 14px; border-radius: 8px; cursor: pointer; font-size: 1rem;
             font-weight: 600; transition: 0.2s;
         }
-
         .btn-google:hover { background: #f4f7f6; border-color: var(--primary); }
-        .btn-google img { width: 20px; }
+        .btn-google img { width: 22px; height: 22px; }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
         <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
-        <div style="color: #999; font-size: 0.8rem; margin-top: 50px;">
-            Inicia sesión para acceder a tus cursos y apuntes.
-        </div>
+        <p style="color: #999; font-size: 0.85rem;">Inicia sesión para acceder a tu contenido.</p>
     </nav>
 
     <main class="main-login">
         <div class="login-card">
             <div class="logo-large">EduPlat</div>
-            <p>Bienvenido de nuevo. Accede a tu espacio de estudio personal.</p>
+            <p style="margin-bottom: 30px; color: #666;">Bienvenido. Accede a tu espacio de estudio.</p>
             
             <button id="btn-login" class="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google Logo">
                 Continuar con Google
             </button>
-
-            <div style="margin-top: 25px; font-size: 0.75rem; color: #999;">
-                Al continuar, aceptas los términos de uso de la plataforma.
-            </div>
         </div>
     </main>
 
@@ -65,17 +55,13 @@
         import { auth, provider } from './firebase-config.js';
         import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // CONFIGURACIÓN PARA EL SELECTOR DE CUENTAS
-        provider.setCustomParameters({
-            prompt: 'select_account'
-        });
+        // Parámetro para forzar el selector de cuentas del PC
+        provider.setCustomParameters({ prompt: 'select_account' });
 
         document.getElementById('btn-login').onclick = async () => {
             try {
                 const result = await signInWithPopup(auth, provider);
-                if (result.user) {
-                    window.location.replace('dashboard.html');
-                }
+                if (result.user) window.location.replace('dashboard.html');
             } catch (error) {
                 console.error("Error en login:", error);
             }
