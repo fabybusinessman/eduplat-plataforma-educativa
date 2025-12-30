@@ -3,77 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Apuntes Dinámicos</title>
+    <title>EduPlat - Apuntes Pro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        :root {
-            --primary: #4a90e2; --bg: #f4f7f6; --text: #333; --border: #e1e4e8;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
         /* Sidebar Navegación */
         .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
-        .nav-link { display: block; padding: 10px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
+        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
-        /* Panel de Carpetas y Archivos */
-        .explorer { width: 300px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .panel-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .list-container { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        /* Explorador */
+        .explorer { width: 320px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; font-size: 0.9em; }
-        .item:hover { background: #f8f9fa; }
+        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; transition: 0.2s; }
+        .item:hover { background: #f0f0f0; }
         .item.active { background: var(--primary); color: white; }
-        .btn-add { width: 100%; padding: 8px; margin-top: 10px; border: 1px dashed var(--primary); background: none; color: var(--primary); cursor: pointer; border-radius: 6px; }
+        .btn-small { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
 
         /* Editor */
         .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
-        .editor-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .editor-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .editor-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
         
-        #note-title { border: none; font-size: 1.5rem; font-weight: 700; outline: none; width: 100%; }
-        #note-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; }
+        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); }
+        #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 12px rgba(74,144,226,0.3); }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <h2 style="color:var(--primary); margin-bottom: 20px;">EduPlat</h2>
+        <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
         <a href="dashboard.html" class="nav-link">🏠 Dashboard</a>
         <a href="cursos.html" class="nav-link">📚 Cursos</a>
         <a href="apuntes.html" class="nav-link active">📝 Apuntes</a>
-        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:red;">🚪 Salir</a>
+        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:#e74c3c;">🚪 Salir</a>
     </nav>
 
     <div class="explorer">
-        <div class="panel-header">
-            <h3>Carpetas</h3>
-            <button class="btn-add" id="new-folder">+ Nueva Carpeta</button>
-            <div id="folders-list" class="list-container"></div>
+        <div class="section-header">
+            <strong>Carpetas</strong>
+            <button class="btn-small" id="add-folder">+ Nueva</button>
         </div>
-        <div class="panel-header" style="border-top: 1px solid var(--border);">
-            <h3>Archivos</h3>
-            <button class="btn-add" id="new-file">+ Nuevo Archivo</button>
-            <div id="files-list" class="list-container"></div>
+        <div id="folder-list" class="list-area" style="max-height: 40%;"></div>
+
+        <div class="section-header">
+            <strong>Archivos en: <span id="current-folder-label">General</span></strong>
+            <button class="btn-small" id="add-file">+ Nuevo</button>
         </div>
+        <div id="file-list" class="list-area"></div>
     </div>
 
     <main class="editor">
         <div class="editor-header">
-            <span id="status" style="color: #2ecc71; font-size: 0.8em;"></span>
-            <button class="btn-save" id="save-btn">Guardar</button>
+            <span id="save-status" style="font-size: 0.85em; font-weight: 500;"></span>
+            <button class="btn-save" id="save-btn">Guardar Apunte</button>
         </div>
-        <div class="editor-content">
-            <input type="text" id="note-title" placeholder="Título del archivo...">
-            <textarea id="note-body" placeholder="Empieza a escribir..."></textarea>
+        <div class="editor-body">
+            <input type="text" id="input-title" placeholder="Título del archivo...">
+            <textarea id="textarea-body" placeholder="Escribe tus ideas aquí..."></textarea>
         </div>
     </main>
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, getDoc, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, doc, setDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         let currentFolder = "General";
@@ -81,88 +80,97 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loadFolders(user.uid);
-                loadFiles(user.uid, currentFolder);
+                initApp(user.uid);
             } else { window.location.href = 'login.html'; }
         });
 
-        // --- GESTIÓN DE CARPETAS ---
-        async function loadFolders(uid) {
-            // En este ejemplo, las carpetas son documentos en una colección 'folders'
-            const q = query(collection(db, "users", uid, "folders"));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('folders-list');
+        function initApp(uid) {
+            // Escuchar Carpetas
+            onSnapshot(query(collection(db, "users", uid, "folders")), (snap) => {
+                const list = document.getElementById('folder-list');
                 list.innerHTML = '';
-                snap.forEach(doc => {
+                // Asegurar que siempre exista 'General'
+                if(snap.empty) createFolder("General");
+                
+                snap.forEach(d => {
                     const div = document.createElement('div');
-                    div.className = `item ${currentFolder === doc.id ? 'active' : ''}`;
-                    div.innerHTML = `📁 ${doc.id}`;
-                    div.onclick = () => { currentFolder = doc.id; loadFolders(uid); loadFiles(uid, doc.id); };
+                    div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
+                    div.innerHTML = `📁 ${d.id}`;
+                    div.onclick = () => { 
+                        currentFolder = d.id; 
+                        document.getElementById('current-folder-label').innerText = d.id;
+                        initApp(uid); // Refrescar listas
+                    };
+                    list.appendChild(div);
+                });
+            });
+
+            // Escuchar Archivos de la carpeta actual
+            const fileQuery = query(
+                collection(db, "users", uid, "notes"),
+                where("folder", "==", currentFolder),
+                orderBy("updatedAt", "desc")
+            );
+
+            onSnapshot(fileQuery, (snap) => {
+                const list = document.getElementById('file-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const div = document.createElement('div');
+                    div.className = `item ${currentFileId === d.id ? 'active' : ''}`;
+                    div.innerHTML = `📄 ${d.data().title || 'Sin título'}`;
+                    div.onclick = () => {
+                        currentFileId = d.id;
+                        document.getElementById('input-title').value = d.data().title;
+                        document.getElementById('textarea-body').value = d.data().body;
+                        initApp(uid);
+                    };
                     list.appendChild(div);
                 });
             });
         }
 
-        document.getElementById('new-folder').onclick = async () => {
+        async function createFolder(name) {
+            const uid = auth.currentUser.uid;
+            await setDoc(doc(db, "users", uid, "folders", name), { created: serverTimestamp() });
+        }
+
+        document.getElementById('add-folder').onclick = () => {
             const name = prompt("Nombre de la carpeta:");
-            if (name && auth.currentUser) {
-                await setDoc(doc(db, "users", auth.currentUser.uid, "folders", name), { creado: new Date() });
-            }
+            if (name) createFolder(name);
         };
 
-        // --- GESTIÓN DE ARCHIVOS ---
-        async function loadFiles(uid, folderName) {
-            const q = query(collection(db, "users", uid, "folders", folderName, "archivos"), orderBy("actualizado", "desc"));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('files-list');
-                list.innerHTML = '';
-                snap.forEach(fileDoc => {
-                    const div = document.createElement('div');
-                    div.className = `item ${currentFileId === fileDoc.id ? 'active' : ''}`;
-                    div.innerHTML = `📄 ${fileDoc.data().titulo || 'Sin título'}`;
-                    div.onclick = () => openFile(uid, folderName, fileDoc.id);
-                    list.appendChild(div);
-                });
-            });
-        }
-
-        async function openFile(uid, folder, fileId) {
-            currentFileId = fileId;
-            const docRef = doc(db, "users", uid, "folders", folder, "archivos", fileId);
-            const snap = await getDoc(docRef);
-            if (snap.exists()) {
-                document.getElementById('note-title').value = snap.data().titulo;
-                document.getElementById('note-body').value = snap.data().contenido;
-            }
-        }
-
-        document.getElementById('new-file').onclick = () => {
+        document.getElementById('add-file').onclick = () => {
             currentFileId = "file_" + Date.now();
-            document.getElementById('note-title').value = "";
-            document.getElementById('note-body').value = "";
-            document.getElementById('note-title').focus();
+            document.getElementById('input-title').value = "";
+            document.getElementById('textarea-body').value = "";
+            document.getElementById('input-title').focus();
         };
 
-        // --- GUARDAR ---
         document.getElementById('save-btn').onclick = async () => {
             const user = auth.currentUser;
-            const titulo = document.getElementById('note-title').value;
-            const contenido = document.getElementById('note-body').value;
+            const title = document.getElementById('input-title').value;
+            const body = document.getElementById('textarea-body').value;
 
-            if (user && currentFileId && titulo) {
-                const status = document.getElementById('status');
-                status.textContent = "Guardando...";
-                
-                await setDoc(doc(db, "users", user.uid, "folders", currentFolder, "archivos", currentFileId), {
-                    titulo: titulo,
-                    contenido: contenido,
-                    actualizado: new Date()
+            if (!user || !title) return alert("Escribe un título primero");
+            if (!currentFileId) currentFileId = "file_" + Date.now();
+
+            const status = document.getElementById('save-status');
+            status.textContent = "Guardando...";
+            status.style.color = "orange";
+
+            try {
+                await setDoc(doc(db, "users", user.uid, "notes", currentFileId), {
+                    title: title,
+                    body: body,
+                    folder: currentFolder,
+                    updatedAt: serverTimestamp()
                 });
-
                 status.textContent = "Guardado ✅";
-                setTimeout(() => status.textContent = "", 2000);
-            } else {
-                alert("Selecciona un archivo o escribe un título.");
+                status.style.color = "green";
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error ❌";
             }
         };
     </script>
