@@ -1,10 +1,18 @@
-<script type="module">
-    import { auth } from './firebase-config.js';
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    
-    signOut(auth).then(() => {
-        window.location.replace('index.html');
-    }).catch(() => {
-        window.location.replace('index.html');
-    });
-</script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Saliendo...</title>
+</head>
+<body>
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        
+        // Forzamos el cierre y la redirección inmediata
+        signOut(auth).finally(() => {
+            window.location.replace('index.html');
+        });
+    </script>
+</body>
+</html>

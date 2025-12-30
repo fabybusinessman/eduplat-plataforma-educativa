@@ -21,33 +21,40 @@
 
         .logo-large { font-size: 2.5rem; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
         
-        /* Botón de Google con Logo */
         .btn-google { 
             display: flex; align-items: center; justify-content: center; gap: 12px;
             width: 100%; background: white; color: #333; border: 1px solid var(--border);
             padding: 14px; border-radius: 8px; cursor: pointer; font-size: 1rem;
-            font-weight: 600; transition: 0.2s;
+            font-weight: 600; transition: 0.2s; margin-bottom: 15px;
         }
         .btn-google:hover { background: #f4f7f6; border-color: var(--primary); }
-        .btn-google img { width: 22px; height: 22px; }
+        .btn-google img { width: 20px; height: 20px; }
+
+        .btn-back {
+            display: inline-block; text-decoration: none; color: #666;
+            font-size: 0.9rem; transition: 0.2s; cursor: pointer;
+        }
+        .btn-back:hover { color: var(--primary); text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
         <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
-        <p style="color: #999; font-size: 0.85rem;">Inicia sesión para acceder a tu contenido.</p>
+        <p style="color: #999; font-size: 0.85rem;">Accede a tu cuenta para continuar aprendiendo.</p>
     </nav>
 
     <main class="main-login">
         <div class="login-card">
             <div class="logo-large">EduPlat</div>
-            <p style="margin-bottom: 30px; color: #666;">Bienvenido. Accede a tu espacio de estudio.</p>
+            <p style="margin-bottom: 30px; color: #666;">Bienvenido. Por favor, inicia sesión.</p>
             
-<button id="btn-login" class="btn-google">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\"G\"_logo.svg" alt="Google Logo">
+            <button id="btn-login" class="btn-google">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google">
                 Continuar con Google
             </button>
+
+            <a href="index.html" class="btn-back">← Volver al inicio</a>
         </div>
     </main>
 
@@ -55,15 +62,14 @@
         import { auth, provider } from './firebase-config.js';
         import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Parámetro para forzar el selector de cuentas del PC
         provider.setCustomParameters({ prompt: 'select_account' });
 
         document.getElementById('btn-login').onclick = async () => {
             try {
-                const result = await signInWithPopup(auth, provider);
-                if (result.user) window.location.replace('dashboard.html');
+                await signInWithPopup(auth, provider);
+                window.location.replace('dashboard.html');
             } catch (error) {
-                console.error("Error en login:", error);
+                console.error("Error:", error);
             }
         };
     </script>
