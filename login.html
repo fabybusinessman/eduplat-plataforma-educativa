@@ -3,166 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - EduPlat</title>
+    <title>EduPlat - Gestión de Apuntes</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
-        :root {
-            --login-primary: #4a90e2;
-            --login-text-dark: #343a40;
-            --login-text-light: #6c757d;
-            --login-bg-white: #ffffff;
-            --login-border-color: #dee2e6;
-            --login-border-radius: 8px;
-            --login-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
+        .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
+        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
+        .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        .explorer { width: 340px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        
+        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
+        .item:hover { background: #f4f7f6; }
+        .item.active { background: var(--primary) !important; color: white !important; }
+        .item-actions { display: none; gap: 8px; }
+        .item:hover .item-actions { display: flex; }
+        
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; }
+        .btn-small { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            color: var(--login-text-dark);
-            line-height: 1.6;
-            display: grid;
-            place-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: -10px; left: -10px; right: -10px; bottom: -10px;
-            z-index: -1;
-            background-image: url('profesorareal.png');
-            background-size: cover;
-            background-position: center center;
-            filter: blur(5px);
-        }
-
-        .login-container {
-            background-color: var(--login-bg-white);
-            padding: 40px;
-            border-radius: var(--login-border-radius);
-            box-shadow: var(--login-shadow);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .login-logo {
-            font-size: 2em;
-            font-weight: 700;
-            color: var(--login-primary);
-            text-decoration: none;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .login-logo::before { content: '🎓'; margin-right: 8px; }
-
-        h2 { margin-bottom: 30px; font-weight: 600; }
-
-        .button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            border-radius: var(--login-border-radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            border: none;
-            font-size: 1em;
-            gap: 10px;
-        }
-
-        .btn-google {
-            background-color: white;
-            color: #757575;
-            border: 1px solid #dadce0;
-            margin-top: 20px;
-        }
-        .btn-google:hover { background-color: #f8f9fa; border-color: #d2e3fc; }
-
-        .divider {
-            margin: 20px 0;
-            border-top: 1px solid var(--login-border-color);
-            position: relative;
-        }
-        .divider span {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 0 10px;
-            color: var(--login-text-light);
-            font-size: 0.8em;
-        }
-
-        .back-link {
-            margin-top: 20px;
-            color: var(--login-primary);
-            text-decoration: none;
-            font-size: 0.9em;
-            display: block;
-        }
+        .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
+        .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .editor-body { padding: 30px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        
+        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); width: 100%; }
+        #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; width: 100%; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <a href="index.html" class="login-logo">EduPlat</a>
-        <h2>Bienvenido</h2>
+    <nav class="sidebar">
+        <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
+        <a href="dashboard.html" class="nav-link">🏠 Dashboard</a>
+        <a href="cursos.html" class="nav-link">📚 Cursos</a>
+        <a href="apuntes.html" class="nav-link active">📝 Apuntes</a>
+        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:var(--danger);">🚪 Salir</a>
+    </nav>
 
-        <button id="google-login" class="button btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" width="18">
-            Entrar con Google
-        </button>
+    <div class="explorer">
+        <div class="section-header">
+            <strong>Carpetas</strong>
+            <button class="btn-small" id="add-folder">+ Nueva</button>
+        </div>
+        <div id="folder-list" class="list-area" style="max-height: 40%; border-bottom: 1px solid #eee;"></div>
 
-        <div class="divider"><span>o</span></div>
-
-        <p style="color: var(--login-text-light); font-size: 0.9em;">
-            Usa tu cuenta institucional para acceder a tus cursos y materiales.
-        </p>
-
-        <a href="index.html" class="back-link">← Volver al inicio</a>
+        <div class="section-header">
+            <strong>Archivos en: <span id="folder-label" style="color:var(--primary)">General</span></strong>
+            <button class="btn-small" id="add-file">+ Nuevo</button>
+        </div>
+        <div id="file-list" class="list-area"></div>
     </div>
 
+    <main class="editor">
+        <div class="editor-header">
+            <span id="save-status" style="font-size: 0.9em; font-weight: 600;"></span>
+            <button class="btn-save" id="save-btn">Guardar Apunte</button>
+        </div>
+        <div class="editor-body">
+            <input type="text" id="input-title" placeholder="Título del archivo...">
+            <textarea id="textarea-body" placeholder="Empieza a escribir tus apuntes aquí..."></textarea>
+        </div>
+    </main>
+
     <script type="module">
-        // Importamos la conexión desde tu archivo de configuración
-        import { auth, provider } from './firebase-config.js';
-        import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { db, auth } from './firebase-config.js';
+        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const btnGoogle = document.getElementById('google-login');
+        let currentFolder = "General";
+        let currentFileId = null;
+        let userUid = null;
 
-        btnGoogle.addEventListener('click', async () => {
-            try {
-                // Abrir ventana emergente de Google
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-
-                // Guardamos datos básicos para personalizar el Dashboard
-                localStorage.setItem('user_name', user.displayName);
-                localStorage.setItem('user_photo', user.photoURL);
-                localStorage.setItem('user_email', user.email);
-
-                // Redirigir al dashboard tras el éxito
-                window.location.href = 'dashboard.html';
-            } catch (error) {
-                console.error("Error en autenticación:", error.code);
-                alert("No se pudo iniciar sesión: " + error.message);
-            }
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userUid = user.uid;
+                // Paso 1: Forzar creación de General si no existe
+                await setDoc(doc(db, "users", userUid, "folders", "General"), { created: serverTimestamp() }, { merge: true });
+                
+                // Paso 2: Iniciar las escuchas
+                initApp();
+            } else { window.location.href = 'login.html'; }
         });
+
+        function initApp() {
+            // Escuchar Carpetas
+            onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
+                const list = document.getElementById('folder-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const div = document.createElement('div');
+                    div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <span onclick="window.selectFolder('${d.id}')">📁 ${d.id}</span>
+                        <div class="item-actions">
+                            <button class="btn-icon" onclick="window.deleteFolder('${d.id}')">🗑️</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+
+            // Escuchar Archivos
+            const filesRef = collection(db, "users", userUid, "folders", currentFolder, "archivos");
+            onSnapshot(filesRef, (snap) => {
+                const list = document.getElementById('file-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const div = document.createElement('div');
+                    div.className = `item ${currentFileId === d.id ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <span onclick="window.selectFile('${d.id}')">📄 ${d.data().title}</span>
+                        <div class="item-actions">
+                            <button class="btn-icon" onclick="window.deleteFile('${d.id}')">🗑️</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // Definir funciones en window para que el HTML las encuentre
+        window.selectFolder = (name) => {
+            currentFolder = name;
+            currentFileId = null;
+            document.getElementById('folder-label').innerText = name;
+            document.getElementById('input-title').value = "";
+            document.getElementById('textarea-body').value = "";
+            initApp();
+        };
+
+        window.selectFile = async (id) => {
+            currentFileId = id;
+            const d = await getDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
+            if(d.exists()){
+                document.getElementById('input-title').value = d.data().title;
+                document.getElementById('textarea-body').value = d.data().body;
+            }
+            initApp();
+        };
+
+        window.deleteFile = async (id) => {
+            if (confirm("¿Borrar archivo?")) {
+                await deleteDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
+                currentFileId = null;
+                document.getElementById('input-title').value = "";
+                document.getElementById('textarea-body').value = "";
+            }
+        };
+
+        window.deleteFolder = async (name) => {
+            if (name === "General") return alert("No puedes borrar la carpeta General");
+            if (confirm(`¿Borrar carpeta ${name}?`)) {
+                await deleteDoc(doc(db, "users", userUid, "folders", name));
+                window.selectFolder("General");
+            }
+        };
+
+        document.getElementById('add-folder').onclick = () => {
+            const n = prompt("Nombre de nueva carpeta:");
+            if(n) setDoc(doc(db, "users", userUid, "folders", n), { created: serverTimestamp() });
+        };
+
+        document.getElementById('add-file').onclick = () => {
+            currentFileId = "file_" + Date.now();
+            document.getElementById('input-title').value = "";
+            document.getElementById('textarea-body').value = "";
+            document.getElementById('input-title').focus();
+        };
+
+        document.getElementById('save-btn').onclick = async () => {
+            const t = document.getElementById('input-title').value;
+            const b = document.getElementById('textarea-body').value;
+            if(!t) return alert("Pon un título");
+            if(!currentFileId) currentFileId = "file_" + Date.now();
+
+            const status = document.getElementById('save-status');
+            status.textContent = "Guardando...";
+            await setDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", currentFileId), {
+                title: t, body: b, updatedAt: serverTimestamp()
+            });
+            status.textContent = "Guardado ✅";
+            setTimeout(() => status.textContent = "", 2000);
+        };
     </script>
 </body>
 </html>
