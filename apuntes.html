@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Apuntes Pro</title>
+    <title>EduPlat - Apuntes Navegables</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; }
@@ -15,24 +15,25 @@
         .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
-        /* Explorador */
+        /* Explorador (Carpetas y Archivos) */
         .explorer { width: 320px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); }
         .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; transition: 0.2s; }
+        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 0.9em; }
         .item:hover { background: #f0f0f0; }
-        .item.active { background: var(--primary); color: white; }
-        .btn-small { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        .item.active { background: var(--primary) !important; color: white !important; }
+        
+        .btn-add { width: 100%; padding: 8px; border: 1px dashed var(--primary); background: white; color: var(--primary); cursor: pointer; border-radius: 6px; font-weight: 600; margin-top: 10px; }
 
         /* Editor */
         .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
         .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .editor-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .editor-body { padding: 30px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
         
-        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); }
+        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: #333; }
         #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 12px rgba(74,144,226,0.3); }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -48,66 +49,72 @@
     <div class="explorer">
         <div class="section-header">
             <strong>Carpetas</strong>
-            <button class="btn-small" id="add-folder">+ Nueva</button>
+            <button class="btn-add" id="add-folder">+ Nueva Carpeta</button>
         </div>
-        <div id="folder-list" class="list-area" style="max-height: 40%;"></div>
+        <div id="folder-list" class="list-area" style="max-height: 40%; border-bottom: 1px solid #eee;"></div>
 
         <div class="section-header">
-            <strong>Archivos en: <span id="current-folder-label">General</span></strong>
-            <button class="btn-small" id="add-file">+ Nuevo</button>
+            <strong>Archivos en: <span id="current-folder-label" style="color:var(--primary)">General</span></strong>
+            <button class="btn-add" id="add-file">+ Nuevo Archivo</button>
         </div>
         <div id="file-list" class="list-area"></div>
     </div>
 
     <main class="editor">
         <div class="editor-header">
-            <span id="save-status" style="font-size: 0.85em; font-weight: 500;"></span>
-            <button class="btn-save" id="save-btn">Guardar Apunte</button>
+            <span id="save-status" style="font-weight: 500;"></span>
+            <button class="btn-save" id="save-btn">Guardar Cambios</button>
         </div>
         <div class="editor-body">
             <input type="text" id="input-title" placeholder="Título del archivo...">
-            <textarea id="textarea-body" placeholder="Escribe tus ideas aquí..."></textarea>
+            <textarea id="textarea-body" placeholder="Empieza a escribir tus apuntes aquí..."></textarea>
         </div>
     </main>
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, doc, setDoc, onSnapshot, query, where, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         let currentFolder = "General";
         let currentFileId = null;
+        let userUid = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                initApp(user.uid);
+                userUid = user.uid;
+                initApp();
             } else { window.location.href = 'login.html'; }
         });
 
-        function initApp(uid) {
-            // Escuchar Carpetas
-            onSnapshot(query(collection(db, "users", uid, "folders")), (snap) => {
+        function initApp() {
+            // 1. Escuchar CARPETAS en tiempo real
+            onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
                 const list = document.getElementById('folder-list');
                 list.innerHTML = '';
-                // Asegurar que siempre exista 'General'
-                if(snap.empty) createFolder("General");
                 
+                // Si está vacío, creamos "General" por defecto
+                if(snap.empty) { createFolder("General"); }
+
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
                     div.innerHTML = `📁 ${d.id}`;
                     div.onclick = () => { 
                         currentFolder = d.id; 
+                        currentFileId = null; // Resetear archivo al cambiar carpeta
+                        document.getElementById('input-title').value = "";
+                        document.getElementById('textarea-body').value = "";
                         document.getElementById('current-folder-label').innerText = d.id;
-                        initApp(uid); // Refrescar listas
+                        initApp(); // Recargar todo con el nuevo filtro
                     };
                     list.appendChild(div);
                 });
             });
 
-            // Escuchar Archivos de la carpeta actual
+            // 2. Escuchar ARCHIVOS filtrados por la carpeta activa
             const fileQuery = query(
-                collection(db, "users", uid, "notes"),
+                collection(db, "users", userUid, "notes"),
                 where("folder", "==", currentFolder),
                 orderBy("updatedAt", "desc")
             );
@@ -123,7 +130,7 @@
                         currentFileId = d.id;
                         document.getElementById('input-title').value = d.data().title;
                         document.getElementById('textarea-body').value = d.data().body;
-                        initApp(uid);
+                        initApp(); // Para marcar el archivo como active
                     };
                     list.appendChild(div);
                 });
@@ -131,12 +138,11 @@
         }
 
         async function createFolder(name) {
-            const uid = auth.currentUser.uid;
-            await setDoc(doc(db, "users", uid, "folders", name), { created: serverTimestamp() });
+            await setDoc(doc(db, "users", userUid, "folders", name), { created: serverTimestamp() });
         }
 
         document.getElementById('add-folder').onclick = () => {
-            const name = prompt("Nombre de la carpeta:");
+            const name = prompt("Nombre de la nueva carpeta:");
             if (name) createFolder(name);
         };
 
@@ -148,29 +154,27 @@
         };
 
         document.getElementById('save-btn').onclick = async () => {
-            const user = auth.currentUser;
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('textarea-body').value;
 
-            if (!user || !title) return alert("Escribe un título primero");
+            if (!title) return alert("Por favor, ponle un título al archivo.");
             if (!currentFileId) currentFileId = "file_" + Date.now();
 
             const status = document.getElementById('save-status');
             status.textContent = "Guardando...";
-            status.style.color = "orange";
-
+            
             try {
-                await setDoc(doc(db, "users", user.uid, "notes", currentFileId), {
+                await setDoc(doc(db, "users", userUid, "notes", currentFileId), {
                     title: title,
                     body: body,
-                    folder: currentFolder,
+                    folder: currentFolder, // Se guarda vinculado a la carpeta activa
                     updatedAt: serverTimestamp()
                 });
-                status.textContent = "Guardado ✅";
-                status.style.color = "green";
+                status.textContent = "Guardado con éxito ✅";
+                setTimeout(() => status.textContent = "", 2000);
             } catch (e) {
                 console.error(e);
-                status.textContent = "Error ❌";
+                status.textContent = "Error al guardar ❌";
             }
         };
     </script>
