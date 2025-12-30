@@ -2,17 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduPlat - Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); display: flex; height: 100vh; color: #333; }
+
+        .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
+        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
+        .nav-link:hover { background: #f4f7f6; }
+        .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
+
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .welcome-card { background: white; padding: 30px; border-radius: 15px; border: 1px solid var(--border); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+        .stat-card h3 { color: var(--primary); font-size: 24px; }
+    </style>
 </head>
 <body>
-    <div style="padding: 50px; text-align: center;">
-        <h1 id="user-name">Cargando...</h1>
-        <div style="margin-top: 20px;">
-            <a href="apuntes.html" style="padding: 10px 20px; background: #4a90e2; color: white; text-decoration: none; border-radius: 5px;">Ir a mis Apuntes</a>
-            <br><br>
-            <a href="cerrarsesion.html" style="color: red;">Cerrar Sesión</a>
+
+    <nav class="sidebar">
+        <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
+        <a href="dashboard.html" class="nav-link active">🏠 Dashboard</a>
+        <a href="cursos.html" class="nav-link">📚 Cursos</a>
+        <a href="apuntes.html" class="nav-link">📝 Apuntes</a>
+        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:var(--danger);">🚪 Salir</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="welcome-card">
+            <h1 id="user-name">Cargando...</h1>
+            <p>¿Qué quieres aprender hoy?</p>
         </div>
-    </div>
+
+        <div class="grid">
+            <div class="stat-card">
+                <h3>0</h3>
+                <p>Cursos Activos</p>
+            </div>
+            <div class="stat-card" style="cursor:pointer" onclick="window.location.href='apuntes.html'">
+                <h3>📝</h3>
+                <p>Ir a mis Apuntes</p>
+            </div>
+            <div class="stat-card">
+                <h3>📅</h3>
+                <p>Calendario</p>
+            </div>
+        </div>
+    </main>
 
     <script type="module">
         import { auth } from './firebase-config.js';
@@ -20,7 +60,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('user-name').innerText = "Bienvenido, " + user.displayName;
+                document.getElementById('user-name').innerText = "¡Bienvenido, " + (user.displayName || 'Estudiante') + "!";
             } else {
                 window.location.replace('login.html');
             }
