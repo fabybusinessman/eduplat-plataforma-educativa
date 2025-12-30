@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a EduPlat - Tu Plataforma de Aprendizaje</title>
+    <style>
+        /* --- Estilos Específicos para la Página de Inicio --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* Variables para la página de inicio (pueden ser diferentes a las del LMS) */
+        :root {
+            --landing-primary: #4a90e2;
+            --landing-secondary: #f5a623;
+            --landing-text-dark: #343a40;
+            --landing-text-light: #6c757d;
+            --landing-bg-light: #f8f9fa;
+            --landing-bg-white: #ffffff;
+            --landing-border-radius: 8px;
+            --landing-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--landing-bg-light);
+            color: var(--landing-text-dark);
+            line-height: 1.7; /* Un poco más de espacio */
+        }
+
+        .container { /* Contenedor para centrar contenido */
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- Cabecera Simple --- */
+        .landing-header {
+            background-color: var(--landing-bg-white);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky; /* Fija la cabecera al hacer scroll */
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1100px; /* Mismo ancho que container */
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .landing-logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--landing-primary);
+            text-decoration: none;
+        }
+        .landing-logo::before { /* Icono simple */
+             content: '🎓';
+             margin-right: 8px;
+        }
+
+        .login-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--landing-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--landing-border-radius);
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .login-button:hover {
+             background-color: #3a7ac8;
+             transform: translateY(-1px);
+        }
+
+
+/* --- INICIO: Reemplaza tus estilos existentes de .hero-section con estos --- */
+
+/* --- Sección Hero (Bienvenida) con Fondo Difuminado --- */
+.hero-section {
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    position: relative; /* Necesario para posicionar pseudo-elementos y contenido */
+    overflow: hidden; /* Contiene el blur del pseudo-elemento */
+    z-index: 1;
+    /* Añadimos un ligero fondo oscuro aquí como fallback y para mejorar contraste */
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Pseudo-elemento para aplicar el fondo y el blur */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: -10px; right: -10px; bottom: -10px; /* Extender para cubrir bordes del blur */
+    z-index: -1; /* Detrás del contenido */
+
+    /* Imagen de fondo aplicada aquí */
+    background-image: url('profesorareal.png'); /* <-- Tu imagen */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    /* El efecto de desenfoque (blur) - Ajusta '8px' si necesitas más o menos */
+    filter: blur(8px);
+
+    /* Opcional: un ligero desvanecimiento u overlay adicional sobre la imagen difuminada */
+    /* background-color: rgba(74, 144, 226, 0.3); */ /* Ejemplo overlay azul claro */
+    /* background-blend-mode: overlay; */ /* Experimenta con blend modes */
+}
+
+/* Asegúrate de que el contenido del hero esté sobre el fondo difuminado */
+.hero-section .container {
+    position: relative; /* Necesario para que z-index funcione */
+    z-index: 1; /* Coloca el contenido sobre el fondo y su pseudo-elemento */
+}
+
+.hero-section h1 {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    /* Sombra de texto es aún más importante con fondos complejos/difuminados */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-section p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 1; /* Texto completamente opaco */
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4); /* Sombra ligera */
+}
+
+.hero-cta-button {
+    display: inline-block;
+    padding: 15px 35px;
+    background-color: var(--landing-secondary);
+    color: var(--landing-text-dark);
+    text-decoration: none;
+    border-radius: var(--landing-border-radius);
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: var(--landing-shadow);
+    position: relative; /* Asegurar que esté sobre el fondo */
+    z-index: 1;
+}
+
+.hero-cta-button:hover {
+    background-color: #f7b03a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- FIN: Reemplazo de estilos .hero-section --- */
+
+        /* --- Sección "Qué encontrarás" --- */
+        .features-section {
+            padding: 70px 0;
+            background-color: var(--landing-bg-white); /* Fondo blanco para contraste */
+        }
+         .section-title {
+             text-align: center;
+             font-size: 2.5em;
+             font-weight: 600;
+             margin-bottom: 50px;
+             color: var(--landing-text-dark);
+         }
+
+         .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+         }
+
+         .feature-card {
+             background-color: var(--landing-bg-light); /* Fondo claro para tarjeta */
+             padding: 30px;
+             border-radius: var(--landing-border-radius);
+             text-align: center;
+             border: 1px solid #e9ecef;
+             transition: transform 0.3s ease, box-shadow 0.3s ease;
+         }
+         .feature-card:hover {
+             transform: translateY(-5px);
+             box-shadow: var(--landing-shadow);
+         }
+
+         .feature-icon {
+             font-size: 3em; /* Icono grande */
+             margin-bottom: 20px;
+             color: var(--landing-primary);
+             /* Puedes usar <i> o <span> para los iconos */
+         }
+
+          .feature-card h3 {
+              font-size: 1.4em;
+              font-weight: 600;
+              margin-bottom: 15px;
+              color: var(--landing-text-dark);
+          }
+          .feature-card p {
+              font-size: 1em;
+              color: var(--landing-text-light);
+          }
+
+
+        /* --- Footer Simple --- */
+        .landing-footer {
+            background-color: #e9ecef; /* Gris muy claro */
+            color: var(--landing-text-light);
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 50px; /* Espacio antes del footer */
+            font-size: 0.9em;
+        }
+
+
+        /* --- Responsividad para la página de inicio --- */
+        @media (max-width: 768px) {
+            .hero-section h1 { font-size: 2.5em; }
+            .hero-section p { font-size: 1.1em; }
+             .section-title { font-size: 2em; }
+             .features-grid { grid-template-columns: 1fr; } /* Una columna en móvil */
+             .header-content { padding: 0 15px; } /* Menos padding en header */
+             .landing-logo { font-size: 1.5em; }
+             .login-button { padding: 8px 15px; font-size: 0.9em;}
+        }
+
+        @media (max-width: 480px) {
+             .hero-section h1 { font-size: 2em; }
+             .hero-section p { font-size: 1em; }
+             .hero-cta-button { padding: 12px 25px; font-size: 1em; }
+             .section-title { font-size: 1.8em; }
+             .feature-card { padding: 25px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="landing-header">
+        <div class="header-content">
+            <a href="inicio.html" class="landing-logo">EduPlat</a>
+            <a href="login.html" class="login-button">Iniciar Sesión</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <h1>Bienvenido a EduPlat</h1>
+                <p>Tu plataforma centralizada para gestionar cursos, seguir tu progreso académico, comunicarte y acceder a todos los recursos de aprendizaje que necesitas para tener éxito.</p>
+                <a href="login.html" class="hero-cta-button">Acceder a la Plataforma</a>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <div class="container">
+                <h2 class="section-title">¿Qué encontrarás aquí?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Acceso a Cursos</h3>
+                        <p>Todos tus cursos inscritos en un solo lugar, con fácil acceso a materiales, tareas y anuncios.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Seguimiento de Progreso</h3>
+                        <p>Visualiza tus calificaciones, el avance en cada curso y tu rendimiento académico general.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗓️</div>
+                        <h3>Calendario Integrado</h3>
+                        <p>Mantente al día con fechas límite, exámenes y eventos importantes de todos tus cursos.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>Comunicación Fácil</h3>
+                        <p>Envía y recibe mensajes de tus profesores y compañeros de equipo directamente en la plataforma.</p>
+                    </div>
+                     <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3>Gestión Personalizada</h3>
+                        <p>Configura tus preferencias de notificación, actualiza tu perfil y ajusta la plataforma a tu gusto.</p>
+                    </div>
+                     <div class="feature-card">
+                        <div class="feature-icon">❓</div>
+                        <h3>Soporte y Ayuda</h3>
+                        <p>Accede a preguntas frecuentes y contacta a soporte técnico si necesitas asistencia adicional.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="landing-footer">
+        <div class="container">
+             &copy; 2025 EduPlat - Plataforma Educativa. Santiago, Chile. Todos los derechos reservados.
+            </div>
+    </footer>
+
+    </body>
+</html>

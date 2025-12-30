@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerrar Sesión - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Rojo */
+            --danger-hover-color: #c82333; /* Rojo más oscuro para hover */
+            --success-color: #28a745; /* Verde */
+            --info-color: #17a2b8; /* Azul claro */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 1000; /* Ensure sidebar is above content */
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 30px; /* Padding normal */
+            transition: margin-left 0.3s ease;
+             /* Center content vertically and horizontally for this page */
+             display: flex;
+             justify-content: center;
+             align-items: center;
+        }
+
+        /* --- Header del Contenido (Ajuste para esta página) --- */
+        .content-header {
+             /* Opcional: podrías ocultar el header normal en esta página
+                o mostrarlo como siempre. Mostrémoslo por consistencia,
+                pero el contenido principal estará centrado debajo */
+             position: absolute; /* Posicionar sobre el flex container */
+             top: 0;
+             left: 260px; /* Ajustar si sidebar colapsa */
+             right: 0;
+             z-index: 900; /* Debajo del sidebar */
+             margin: 30px 30px 0 30px; /* Margen como padding original */
+             width: auto; /* Ancho automático */
+             /* Resto de estilos del header */
+             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--background-white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar input { /* Ocultar o mantener */
+            display: none; /* Ocultar búsqueda aquí */
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon { /* Ocultar o mantener */
+             display: none; /* Ocultar notificaciones */
+        }
+
+        /* --- Estilos Específicos de Cerrar Sesión --- */
+        .logout-card { /* Usando clase específica para mayor control */
+            background-color: var(--background-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium); /* Sombra más prominente */
+            padding: 40px;
+            text-align: center;
+            max-width: 500px; /* Ancho máximo */
+            width: 90%; /* Ancho relativo */
+             /* Empujar hacia abajo desde el header fijo */
+             /* margin-top: 120px; */ /* Ajustar según altura del header */
+             /* Como main-content es flex center, no se necesita margin-top */
+        }
+
+         .logout-card h2 {
+            font-size: 1.5em;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+         }
+         .logout-card p {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+         }
+
+         .logout-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Espacio entre botones */
+         }
+
+         /* Estilos para botones */
+         .button {
+            display: inline-block;
+            padding: 12px 25px;
+            text-decoration: none;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-size: 1em;
+            text-align: center;
+        }
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+         .button.primary { /* Botón primario estándar */
+             background-color: var(--primary-color);
+             color: white;
+         }
+          .button.primary:hover {
+              background-color: #3a7ac8;
+          }
+
+          .button.secondary { /* Botón secundario (Cancelar) */
+             background-color: var(--background-light); /* Fondo claro */
+             color: var(--text-dark); /* Texto oscuro */
+             border: 1px solid var(--border-color); /* Borde sutil */
+         }
+          .button.secondary:hover {
+              background-color: #e2e6ea; /* Gris claro al pasar */
+              border-color: #dae0e5;
+          }
+
+          .button.danger { /* Botón peligroso (Confirmar Cierre) */
+              background-color: var(--danger-color);
+              color: white;
+          }
+          .button.danger:hover {
+              background-color: var(--danger-hover-color);
+          }
+
+
+        /* --- Responsividad --- */
+        .menu-toggle { display: none; }
+        .menu-toggle::before { content: '☰'; }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; overflow: hidden; }
+            .sidebar-header .logo { font-size: 1.5em; padding-left: 10px; }
+            .sidebar-header .logo span { display: none; }
+            .sidebar-header .logo::before { margin-right: 0; }
+            .sidebar-nav li a span { display: none; }
+            .sidebar-nav li a i { margin-right: 0; font-size: 1.3em; }
+            .sidebar-nav li a { justify-content: center; padding: 15px 0; }
+            .main-content { margin-left: 70px; }
+            .content-header { left: 70px; margin-left: 30px;} /* Ajustar posición header */
+        }
+
+        @media (max-width: 768px) {
+             .menu-toggle {
+                 display: block;
+                 font-size: 1.8em; cursor: pointer; background: none; border: none;
+                 color: var(--primary-color); padding: 5px; margin-right: 10px;
+            }
+            .sidebar { position: fixed; left: -260px; width: 260px; height: 100vh; z-index: 1000; transition: left 0.3s ease; box-shadow: var(--shadow-medium); }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; } /* Padding móvil */
+             .sidebar.open .sidebar-header .logo span { display: inline; }
+             .sidebar.open .sidebar-nav li a span { display: inline; }
+             .sidebar.open .sidebar-nav li a { justify-content: flex-start; padding: 12px 20px; }
+             .sidebar.open .sidebar-nav li a i { margin-right: 15px; font-size: 1em; }
+
+            .content-header { /* Ajustar header en móvil */
+                 position: relative; /* Quitar absolute */
+                 left: auto;
+                 margin: 0 0 30px 0; /* Margen normal */
+                 width: 100%; /* Ancho completo */
+            }
+             .user-name { font-size: 0.9em;}
+             .logout-card { padding: 30px; }
+             .logout-actions { flex-direction: column; gap: 15px; align-items: stretch;} /* Botones en columna */
+             .button { width: 100%; } /* Botones ancho completo */
+        }
+
+         /* Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999; }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="logo"><span>EduPlat</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                     <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                    <li><a href="ayuda.html"><i>❓</i> <span>Ayuda</span></a></li>
+                     <li><a href="#" class="active"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+             <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button>
+                 <h1 class="header-title">Cerrar Sesión</h1>
+                <div class="header-actions">
+                     <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                         <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="logout-card">
+                <h2>Confirmación</h2>
+                <p>¿Estás seguro de que deseas cerrar tu sesión en la Plataforma Educativa?</p>
+                <div class="logout-actions">
+                    <a href="dashboard.html" class="button secondary">Cancelar</a>
+                    <a href="inicio.html" class="button danger">Confirmar Cierre de Sesión</a>
+                </div>
+            </div>
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // --- Lógica Menú Hamburguesa Móvil (igual que antes) ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const mainContent = document.querySelector('.main-content');
+        const headerContent = document.querySelector('.content-header'); // Seleccionar header
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+                 // Ajustar posición del header si el sidebar se abre/cierra en desktop
+                 // (Puede ser necesario si el header es position:absolute o fixed)
+                // if (window.innerWidth > 768) { // Solo en desktop
+                //    headerContent.style.left = sidebar.classList.contains('open') ? '260px' : '70px';
+                // }
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                // if (window.innerWidth > 768) {
+                //     headerContent.style.left = '70px'; // Reset header position
+                // }
+            });
+        }
+
+         // Ajuste inicial y en resize para la posición del header (si es necesario)
+         function adjustHeaderPosition() {
+             if (window.innerWidth > 768 && headerContent && sidebar) {
+                  // Comentar o ajustar esta lógica si el header no es fijo/absoluto
+                 // headerContent.style.left = sidebar.classList.contains('open') ? '260px' : '70px';
+                 // headerContent.style.width = `calc(100% - ${sidebar.offsetWidth}px - 60px)`; // Ajusta ancho
+             } else if (headerContent) {
+                 // Reset styles for mobile or if logic is removed
+                 // headerContent.style.left = '';
+                 // headerContent.style.width = '';
+             }
+         }
+         // window.addEventListener('resize', adjustHeaderPosition);
+         // document.addEventListener('DOMContentLoaded', adjustHeaderPosition); // Llama al cargar
+
+
+        // No se necesita JS adicional para la funcionalidad básica de esta página estática
+
+    </script>
+</body>
+</html>

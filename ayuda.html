@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Rojo */
+            --success-color: #28a745; /* Verde */
+            --info-color: #17a2b8; /* Azul claro */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 1000; /* Ensure sidebar is above content */
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 30px; /* Padding normal */
+            transition: margin-left 0.3s ease;
+        }
+
+        /* --- Header del Contenido --- */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--background-white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar input { /* Search within help? */
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: var(--text-light);
+        }
+        .notification-icon::after {
+            content: '🔔';
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        /* --- Estilos Específicos de Ayuda --- */
+         .card { /* Reutilizamos card */
+            background-color: var(--background-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+         .card-header { /* Reutilizamos */
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title { /* Reutilizamos */
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .help-search { /* Barra búsqueda ayuda (no funcional) */
+             display: flex;
+             margin-bottom: 25px;
+             border-bottom: 1px solid var(--border-color);
+             padding-bottom: 25px;
+        }
+         .help-search input {
+             flex-grow: 1;
+             padding: 12px 15px;
+             border: 1px solid var(--border-color);
+             border-radius: var(--border-radius) 0 0 var(--border-radius); /* Redondeo izq */
+             font-size: 1em;
+         }
+          .help-search button {
+             padding: 12px 20px;
+             border: 1px solid var(--primary-color);
+             background-color: var(--primary-color);
+             color: white;
+             border-radius: 0 var(--border-radius) var(--border-radius) 0; /* Redondeo der */
+             cursor: pointer;
+             font-size: 1em;
+             margin-left: -1px; /* Superponer borde */
+          }
+
+         /* Estilo para FAQ con <details> y <summary> */
+        details {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        details:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 500;
+            padding: 10px 0;
+            list-style: none; /* Quita marcador por defecto */
+            position: relative;
+            padding-right: 25px; /* Espacio para el marcador */
+        }
+         summary::-webkit-details-marker { display: none; } /* Oculta marcador en Chrome/Safari */
+         summary::marker { display: none; } /* Oculta marcador en Firefox */
+
+         /* Marcador personalizado */
+         summary::after {
+            content: '+';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4em;
+            color: var(--primary-color);
+            transition: transform 0.2s ease;
+         }
+          details[open] summary::after {
+            content: '−'; /* Cambia a menos cuando está abierto */
+             transform: translateY(-50%) rotate(180deg); /* Opcional: rotar */
+          }
+
+
+        details > p { /* Estilo para la respuesta */
+             padding: 10px 0 5px 15px; /* Indentación */
+             color: var(--text-light);
+             font-size: 0.95em;
+             margin-left: 10px; /* Alineado con el inicio del texto de summary */
+             border-left: 3px solid var(--secondary-color); /* Línea decorativa */
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+            font-size: 1em;
+            line-height: 1.7;
+        }
+         .contact-info strong {
+            color: var(--text-dark);
+         }
+         .contact-info a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+         }
+         .contact-info a:hover {
+            text-decoration: underline;
+         }
+
+
+        /* --- Responsividad --- */
+        .menu-toggle { display: none; }
+        .menu-toggle::before { content: '☰'; }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; overflow: hidden; }
+            .sidebar-header .logo { font-size: 1.5em; padding-left: 10px; }
+            .sidebar-header .logo span { display: none; }
+            .sidebar-header .logo::before { margin-right: 0; }
+            .sidebar-nav li a span { display: none; }
+            .sidebar-nav li a i { margin-right: 0; font-size: 1.3em; }
+            .sidebar-nav li a { justify-content: center; padding: 15px 0; }
+            .main-content { margin-left: 70px; }
+        }
+
+        @media (max-width: 768px) {
+             .menu-toggle {
+                 display: block;
+                 font-size: 1.8em; cursor: pointer; background: none; border: none;
+                 color: var(--primary-color); padding: 5px; margin-right: 10px;
+            }
+            .sidebar { position: fixed; left: -260px; width: 260px; height: 100vh; z-index: 1000; transition: left 0.3s ease; box-shadow: var(--shadow-medium); }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; }
+             .sidebar.open .sidebar-header .logo span { display: inline; }
+             .sidebar.open .sidebar-nav li a span { display: inline; }
+             .sidebar.open .sidebar-nav li a { justify-content: flex-start; padding: 12px 20px; }
+             .sidebar.open .sidebar-nav li a i { margin-right: 15px; font-size: 1em; }
+
+            .content-header { gap: 10px; padding: 15px; }
+            .header-title { font-size: 1.5em; margin-right: auto; }
+             .search-bar { display: none; } /* Ocultar búsqueda general */
+             .user-name { font-size: 0.9em;}
+             .card { padding: 20px; }
+             .help-search input, .help-search button { font-size: 0.9em; }
+             summary { font-size: 0.95em; }
+             details > p { font-size: 0.9em; padding-left: 10px;}
+        }
+
+         /* Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999; }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="logo"><span>EduPlat</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                     <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                     <li><a href="#" class="active"><i>❓</i> <span>Ayuda</span></a></li>
+                     <li><a href="cerrarsesion.html"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button> <h1 class="header-title">Centro de Ayuda</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Buscar...">
+                    </div>
+                    <div class="notification-icon" title="Notificaciones">
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                        <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="help-search">
+                <input type="search" placeholder="¿Cómo podemos ayudarte? Busca en las FAQs...">
+                <button type="button">Buscar</button>
+            </div>
+
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Preguntas Frecuentes (FAQ)</h2>
+                </div>
+                <div>
+                    <details>
+                        <summary>¿Cómo puedo cambiar mi contraseña?</summary>
+                        <p>Para cambiar tu contraseña, dirígete a la sección de <a href="configuracion.html">Configuración</a>, haz clic en "Editar Perfil" e ingresa tu nueva contraseña en los campos correspondientes. Asegúrate de guardarla.</p>
+                    </details>
+                    <details>
+                        <summary>¿Dónde encuentro los materiales de un curso?</summary>
+                        <p>Los materiales de cada curso (como documentos, videos o enlaces) suelen estar organizados dentro de la página principal del curso, a menudo en secciones llamadas "Módulos", "Recursos" o "Archivos". Navega a <a href="cursos.html">Mis Cursos</a>, selecciona el curso deseado y explora su contenido.</p>
+                    </details>
+                    <details>
+                        <summary>¿Cómo sé cuál es la fecha límite para una tarea?</summary>
+                        <p>Las fechas límite de las tareas se muestran generalmente en la descripción de la propia tarea dentro del curso. También puedes consultar el <a href="calendario.html">Calendario</a> de la plataforma, donde suelen aparecer marcadas las próximas entregas y eventos importantes.</p>
+                    </details>
+                     <details>
+                        <summary>No puedo acceder a un curso al que estoy inscrito, ¿qué hago?</summary>
+                        <p>Primero, asegúrate de que el periodo académico del curso está activo. Si el problema persiste, verifica tu conexión a internet. Si todo parece correcto, por favor, contacta a soporte técnico utilizando la información de abajo.</p>
+                    </details>
+                    </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                     <h2 class="card-title">Contacta a soporte técnico</h2>
+                </div>
+                <div class="contact-info">
+                     <p>Si no encontraste la respuesta a tu pregunta en las FAQs o necesitas asistencia adicional con algún problema técnico en la plataforma, puedes contactar a nuestro equipo de soporte.</p>
+                     <p>Por favor, incluye una descripción detallada del problema, el curso relacionado (si aplica) y cualquier captura de pantalla que pueda ayudar.</p>
+                     <p><strong>Correo electrónico de soporte:</strong>
+                         <a href="mailto:fabybusiness@gmail.com">fabybusiness@gmail.com</a>
+                    </p>
+                     <p>Nuestro horario de atención es de Lunes a Viernes, de 9:00 a 18:00 hrs (Hora de Chile Continental, GMT-4 / GMT-3 en verano).</p>
+                      </div>
+            </section>
+
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // --- Lógica Menú Hamburguesa Móvil (igual que antes) ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // No se necesita JS adicional para esta vista estática de ayuda
+        // (La funcionalidad de búsqueda o el acordeón <details> es nativa)
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Rojo para eventos importantes/deadlines */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* --- Header del Contenido --- */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--background-white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: var(--text-light);
+        }
+        .notification-icon::after {
+            content: '🔔';
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        /* --- Estilos Específicos del Calendario --- */
+        .calendar-container {
+            background-color: var(--background-white);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calendar-nav button {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .calendar-nav button:hover {
+             background-color: var(--primary-color);
+             color: white;
+        }
+
+
+        .calendar-month-year {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px; /* Espacio entre celdas */
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-light);
+            padding-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .calendar-day {
+            border: 1px solid var(--border-color);
+            min-height: 100px; /* Altura mínima para cada día */
+            padding: 8px;
+            font-size: 0.9em;
+            position: relative;
+            transition: background-color 0.2s ease;
+        }
+        .calendar-day:hover {
+            background-color: #f1f9ff; /* Ligero azul al pasar el ratón */
+        }
+
+        .day-number {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block; /* Para que ocupe su línea */
+        }
+
+        .calendar-day.other-month .day-number {
+            color: var(--text-light);
+            opacity: 0.6;
+        }
+
+        .calendar-day.current-day {
+            background-color: #e9f2fc; /* Fondo especial para hoy */
+            border-color: var(--primary-color);
+        }
+        .calendar-day.current-day .day-number {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .event-marker {
+            display: block; /* block para que aparezca debajo */
+            font-size: 0.75em;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-top: 4px;
+            white-space: nowrap; /* Evita que el texto se parta */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Añade ... si no cabe */
+            cursor: pointer;
+        }
+        .event-marker.type-deadline {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .event-marker.type-meeting {
+            background-color: var(--secondary-color);
+            color: var(--text-dark);
+        }
+        .event-marker.type-exam {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* --- Event List (optional, if not displaying directly on grid) --- */
+        /*
+        .event-list {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        .event-list h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .event-list ul {
+            list-style: none;
+        }
+        .event-list li {
+            margin-bottom: 10px;
+            padding-left: 15px;
+            border-left: 3px solid var(--primary-color);
+        } */
+
+
+        /* --- Responsividad --- */
+        .menu-toggle { display: none; } /* Resto de estilos responsivos iguales... */
+         .menu-toggle::before { content: '☰'; }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; overflow: hidden; }
+            .sidebar-header .logo { font-size: 1.5em; padding-left: 10px; }
+            .sidebar-header .logo span { display: none; }
+            .sidebar-header .logo::before { margin-right: 0; }
+            .sidebar-nav li a span { display: none; }
+            .sidebar-nav li a i { margin-right: 0; font-size: 1.3em; }
+            .sidebar-nav li a { justify-content: center; padding: 15px 0; }
+            .main-content { margin-left: 70px; }
+            .calendar-day { min-height: 80px; font-size: 0.8em; padding: 5px;} /* Reduce día en tablet */
+             .event-marker { font-size: 0.7em; }
+        }
+
+        @media (max-width: 768px) {
+             .menu-toggle {
+                 display: block;
+                 font-size: 1.8em; cursor: pointer; background: none; border: none;
+                 color: var(--primary-color); padding: 5px; margin-right: 10px;
+            }
+            .sidebar { position: fixed; left: -260px; width: 260px; height: 100vh; z-index: 1000; transition: left 0.3s ease; box-shadow: var(--shadow-medium); }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .sidebar-header .logo span { display: inline; }
+            .sidebar-nav li a span { display: inline; }
+            .sidebar-nav li a { justify-content: flex-start; padding: 12px 20px; }
+            .sidebar-nav li a i { margin-right: 15px; font-size: 1em; }
+            .content-header { gap: 10px; padding: 15px; }
+            .header-title { font-size: 1.5em; margin-right: auto; }
+             .header-actions { /* Ajustes si son necesarios */ }
+            .search-bar { flex-grow: 1; max-width: 180px; }
+            .search-bar input { min-width: 100px; }
+             .calendar-nav { flex-direction: column; gap: 10px;} /* Navegación en columna */
+             .calendar-month-year { font-size: 1.2em;}
+             .calendar-header { font-size: 0.7em; padding-bottom: 5px;} /* Días más pequeños */
+             .calendar-day { min-height: 60px; font-size: 0.75em; padding: 4px;} /* Días más pequeños en móvil */
+             .event-marker { display: none; } /* Ocultar marcadores en móvil (o usar puntos) */
+             /* Alternativa: mostrar solo un punto */
+             .calendar-day.has-event::after {
+                 content: '•';
+                 position: absolute;
+                 bottom: 2px;
+                 left: 50%;
+                 transform: translateX(-50%);
+                 font-size: 1.5em;
+                 color: var(--primary-color);
+                 display: block; /* Asegura que se muestre si .event-marker está oculto */
+             }
+             @media (max-width: 768px) {
+                 .calendar-day.has-event.type-deadline::after { color: var(--danger-color); }
+                 .calendar-day.has-event.type-exam::after { color: var(--accent-color); }
+                 .calendar-day.has-event.type-meeting::after { color: var(--secondary-color); }
+             }
+
+        }
+
+         /* Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999; }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo"><span>EduPlat</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                     <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html" class="active"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                    <li><a href="ayuda.html"><i>❓</i> <span>Ayuda</span></a></li>
+                    <li><a href="cerrarsesion.html"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button> <h1 class="header-title">Calendario</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Buscar eventos...">
+                    </div>
+                    <div class="notification-icon" title="Notificaciones">
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                        <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="calendar-container">
+
+                <div class="calendar-nav">
+                    <button title="Mes anterior">&lt; Anterior</button>
+                    <span class="calendar-month-year">Abril 2025</span>
+                    <button title="Mes siguiente">Siguiente &gt;</button>
+                </div>
+
+                <div class="calendar-grid">
+                    <div class="calendar-header">Lun</div>
+                    <div class="calendar-header">Mar</div>
+                    <div class="calendar-header">Mié</div>
+                    <div class="calendar-header">Jue</div>
+                    <div class="calendar-header">Vie</div>
+                    <div class="calendar-header">Sáb</div>
+                    <div class="calendar-header">Dom</div>
+
+                    <div class="calendar-day other-month"><span class="day-number">31</span></div> <div class="calendar-day"><span class="day-number">1</span></div>
+                    <div class="calendar-day"><span class="day-number">2</span></div>
+                    <div class="calendar-day"><span class="day-number">3</span></div>
+                     <div class="calendar-day current-day"><span class="day-number">4</span></div>
+                    <div class="calendar-day"><span class="day-number">5</span></div>
+                    <div class="calendar-day"><span class="day-number">6</span></div>
+
+                    <div class="calendar-day"><span class="day-number">7</span></div>
+                     <div class="calendar-day has-event type-exam">
+                        <span class="day-number">8</span>
+                        <span class="event-marker type-exam">Examen Parcial Web</span>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">9</span></div>
+                    <div class="calendar-day has-event type-meeting">
+                         <span class="day-number">10</span>
+                         <span class="event-marker type-meeting">Clase: Accesibilidad</span>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">11</span></div>
+                    <div class="calendar-day"><span class="day-number">12</span></div>
+                    <div class="calendar-day"><span class="day-number">13</span></div>
+
+                    <div class="calendar-day"><span class="day-number">14</span></div>
+                     <div class="calendar-day has-event type-deadline">
+                        <span class="day-number">15</span>
+                        <span class="event-marker type-deadline">Entrega: Proyecto Web</span>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">16</span></div>
+                    <div class="calendar-day"><span class="day-number">17</span></div> <div class="calendar-day"><span class="day-number">18</span></div> <div class="calendar-day"><span class="day-number">19</span></div>
+                    <div class="calendar-day"><span class="day-number">20</span></div>
+
+                    <div class="calendar-day"><span class="day-number">21</span></div>
+                    <div class="calendar-day has-event type-deadline">
+                        <span class="day-number">22</span>
+                         <span class="event-marker type-deadline">Entrega: Wireframes</span>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">23</span></div>
+                    <div class="calendar-day"><span class="day-number">24</span></div>
+                    <div class="calendar-day"><span class="day-number">25</span></div>
+                    <div class="calendar-day"><span class="day-number">26</span></div>
+                    <div class="calendar-day"><span class="day-number">27</span></div>
+
+                    <div class="calendar-day"><span class="day-number">28</span></div>
+                    <div class="calendar-day"><span class="day-number">29</span></div>
+                    <div class="calendar-day"><span class="day-number">30</span></div>
+                    <div class="calendar-day other-month"><span class="day-number">1</span></div> <div class="calendar-day other-month"><span class="day-number">2</span></div> <div class="calendar-day other-month"><span class="day-number">3</span></div> <div class="calendar-day other-month"><span class="day-number">4</span></div> </div>
+
+                </section>
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // Lógica para el menú hamburguesa en móvil (igual que antes)
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // No se necesita JS adicional para este calendario estático
+        // (a menos que quisieras hacer los botones Anterior/Siguiente funcionales
+        // o mostrar detalles del evento al hacer clic, lo cual requiere más lógica)
+
+    </script>
+</body>
+</html>

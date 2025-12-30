@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calificaciones - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Rojo */
+            --warning-color: #ffc107; /* Amarillo */
+            --success-color: #28a745; /* Verde */
+            --info-color: #17a2b8; /* Azul claro */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* --- Header del Contenido --- */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--background-white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar input { /* Mantenido por consistencia, aunque menos útil aquí */
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: var(--text-light);
+        }
+        .notification-icon::after {
+            content: '🔔';
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        /* --- Estilos Específicos de Calificaciones --- */
+        .grades-container {
+            background-color: var(--background-white);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 30px; /* Espacio antes de detalles */
+        }
+
+        .grades-controls { /* Placeholder para filtros */
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+        .grades-controls select {
+             padding: 8px 12px;
+             border: 1px solid var(--border-color);
+             border-radius: var(--border-radius);
+             font-size: 0.9em;
+        }
+
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse; /* Une los bordes */
+            font-size: 0.95em;
+        }
+
+        .grades-table th, .grades-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px 15px; /* Más padding */
+            text-align: left;
+            vertical-align: middle; /* Alinea verticalmente */
+        }
+
+        .grades-table th {
+            background-color: var(--background-light);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .grades-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa; /* Filas alternas */
+        }
+        .grades-table tbody tr:hover {
+            background-color: #e9f2fc; /* Resaltar fila al pasar */
+        }
+
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            color: white;
+            text-align: center;
+        }
+        .status-inprogress { background-color: var(--info-color); }
+        .status-completed { background-color: var(--success-color); }
+        .status-pending { background-color: var(--warning-color); color: var(--text-dark)}
+
+
+        .grade-display {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block; /* Para que el fondo no ocupe toda la celda */
+        }
+        /* Colores ejemplo según escala Chilena (>=5.5 Aprobado Alto, >=4.0 Aprobado, <4.0 Reprobado) */
+        .grade-high { /* >= 5.5 */
+             color: var(--success-color);
+             /* background-color: #eaf6ec; */ /* Fondo suave opcional */
+        }
+        .grade-mid { /* 4.0 - 5.4 */
+             color: var(--accent-color);
+             /* background-color: #fff8e7; */ /* Fondo suave opcional */
+        }
+         .grade-low { /* < 4.0 */
+             color: var(--danger-color);
+             /* background-color: #fdedee; */ /* Fondo suave opcional */
+        }
+
+        .detailed-grades-container { /* Contenedor para detalles */
+             background-color: var(--background-white);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+         .detailed-grades-container h3 {
+             margin-bottom: 20px;
+             font-weight: 600;
+             padding-bottom: 10px;
+             border-bottom: 1px solid var(--border-color);
+         }
+
+         .detailed-grades-table { /* Tabla para detalles */
+             width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+         }
+         .detailed-grades-table th, .detailed-grades-table td {
+             border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: middle;
+         }
+          .detailed-grades-table th {
+            background-color: var(--background-light);
+            font-weight: 500;
+          }
+          .detailed-grades-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+
+        /* --- Responsividad --- */
+        .menu-toggle { display: none; }
+        .menu-toggle::before { content: '☰'; }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; overflow: hidden; }
+            .sidebar-header .logo { font-size: 1.5em; padding-left: 10px; }
+            .sidebar-header .logo span { display: none; }
+            .sidebar-header .logo::before { margin-right: 0; }
+            .sidebar-nav li a span { display: none; }
+            .sidebar-nav li a i { margin-right: 0; font-size: 1.3em; }
+            .sidebar-nav li a { justify-content: center; padding: 15px 0; }
+            .main-content { margin-left: 70px; }
+             .grades-table th, .grades-table td { padding: 10px 8px; font-size: 0.9em; } /* Menos padding en tablet */
+        }
+
+        @media (max-width: 768px) {
+             .menu-toggle {
+                 display: block;
+                 font-size: 1.8em; cursor: pointer; background: none; border: none;
+                 color: var(--primary-color); padding: 5px; margin-right: 10px;
+            }
+            .sidebar { position: fixed; left: -260px; width: 260px; height: 100vh; z-index: 1000; transition: left 0.3s ease; box-shadow: var(--shadow-medium); }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .sidebar-header .logo span { display: inline; }
+            .sidebar-nav li a span { display: inline; }
+            .sidebar-nav li a { justify-content: flex-start; padding: 12px 20px; }
+            .sidebar-nav li a i { margin-right: 15px; font-size: 1em; }
+            .content-header { gap: 10px; padding: 15px; }
+            .header-title { font-size: 1.5em; margin-right: auto; }
+             .header-actions { /* Ajustes si son necesarios */ }
+            .search-bar { flex-grow: 1; max-width: 180px; }
+            .search-bar input { min-width: 100px; }
+
+            /* Hacer la tabla responsive */
+             .grades-table, .detailed-grades-table {
+                display: block; /* Cambiar a bloque para permitir scroll horizontal */
+                overflow-x: auto; /* Añadir scroll horizontal si no cabe */
+                white-space: nowrap; /* Evitar que el contenido se rompa */
+                font-size: 0.85em;
+             }
+              .grades-table th, .grades-table td,
+              .detailed-grades-table th, .detailed-grades-table td {
+                white-space: nowrap; /* Asegurar que no se rompa el contenido de celdas */
+                padding: 8px 10px;
+            }
+             .grades-controls { flex-direction: column; gap: 10px; align-items: stretch; }
+             .grades-controls select { width: 100%; }
+        }
+
+         /* Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999; }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo"><span>EduPlat</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"class="active"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                    <li><a href="ayuda.html"><i>❓</i> <span>Ayuda</span></a></li>
+                    <li><a href="cerrarsesion.html"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button> <h1 class="header-title">Calificaciones</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Buscar curso...">
+                    </div>
+                    <div class="notification-icon" title="Notificaciones">
+                        <span class="notification-badge">3</span> </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                        <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grades-container">
+                <div class="grades-controls">
+                    <select name="periodo" id="periodo">
+                        <option value="actual">Periodo Actual (2025-1)</option>
+                        <option value="anterior">Periodo Anterior (2024-2)</option>
+                         <option value="todos">Todos los Periodos</option>
+                    </select>
+                     </div>
+
+                <table class="grades-table">
+                    <thead>
+                        <tr>
+                            <th>Curso</th>
+                            <th>Estado</th>
+                            <th>Calificación Promedio</th>
+                            <th>Acciones</th> </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Desarrollo Web Moderno</td>
+                            <td><span class="status-badge status-inprogress">En Curso</span></td>
+                            <td><span class="grade-display grade-high">6,1</span></td>
+                            <td><a href="#detalle-web" style="font-size: 0.9em; text-decoration:none;">Ver Detalles</a></td>
+                        </tr>
+                         <tr>
+                            <td>Diseño UX/UI</td>
+                            <td><span class="status-badge status-inprogress">En Curso</span></td>
+                             <td><span class="grade-display grade-mid">5,2</span></td>
+                             <td><a href="#" style="font-size: 0.9em; text-decoration:none;">Ver Detalles</a></td>
+                        </tr>
+                        <tr>
+                            <td>Marketing Digital Esencial</td>
+                            <td><span class="status-badge status-completed">Completado</span></td>
+                            <td><span class="grade-display grade-high">6,8</span></td>
+                            <td><a href="#" style="font-size: 0.9em; text-decoration:none;">Ver Detalles</a></td>
+                        </tr>
+                         <tr>
+                            <td>Introducción a Python</td>
+                             <td><span class="status-badge status-inprogress">En Curso</span></td>
+                            <td><span class="grade-display">--</span></td> <td><a href="#" style="font-size: 0.9em; text-decoration:none;">Ver Detalles</a></td>
+                        </tr>
+                         <tr>
+                            <td>Gestión de Proyectos (2024-2)</td>
+                            <td><span class="status-badge status-completed">Completado</span></td>
+                             <td><span class="grade-display grade-low">3,5</span></td>
+                             <td><a href="#" style="font-size: 0.9em; text-decoration:none;">Ver Detalles</a></td>
+                        </tr>
+                         </tbody>
+                </table>
+            </div>
+
+            <div class="detailed-grades-container" id="detalle-web">
+                 <h3>Detalle Calificaciones: Desarrollo Web Moderno</h3>
+                <table class="detailed-grades-table">
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>Tipo</th>
+                            <th>Fecha Límite</th>
+                            <th>Calificación</th>
+                             <th>Ponderación</th> </tr>
+                    </thead>
+                     <tbody>
+                        <tr>
+                            <td>Tarea 1: Maquetación HTML</td>
+                            <td>Tarea</td>
+                            <td>15-Mar-2025</td>
+                            <td><span class="grade-display grade-high">6,5</span></td>
+                            <td>15%</td>
+                        </tr>
+                         <tr>
+                            <td>Tarea 2: Estilos CSS</td>
+                            <td>Tarea</td>
+                            <td>30-Mar-2025</td>
+                            <td><span class="grade-display grade-high">7,0</span></td>
+                             <td>15%</td>
+                        </tr>
+                        <tr>
+                            <td>Examen Parcial 1</td>
+                            <td>Examen</td>
+                            <td>08-Abr-2025</td>
+                            <td><span class="grade-display grade-mid">5,0</span></td>
+                            <td>30%</td>
+                        </tr>
+                         <tr>
+                            <td>Proyecto Final</td>
+                            <td>Proyecto</td>
+                            <td>15-Abr-2025</td>
+                            <td><span class="status-badge status-pending">Pendiente</span></td>
+                            <td>40%</td>
+                        </tr>
+                        </tbody>
+                </table>
+                 <p style="margin-top: 15px; font-size: 0.9em; color: var(--text-light);">Nota: El promedio actual se calcula con las calificaciones disponibles.</p>
+            </div>
+
+
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // Lógica para el menú hamburguesa en móvil (igual que antes)
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // No se necesita JS adicional para esta vista estática de calificaciones
+
+    </script>
+</body>
+</html>

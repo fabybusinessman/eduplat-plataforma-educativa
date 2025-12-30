@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Cursos - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease; /* Added left transition */
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        /* Icono simple para el logo (puedes reemplazar con un SVG o img) */
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent; /* Para indicador activo */
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc; /* Fondo suave al pasar el mouse o activo */
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i { /* Placeholder for icons */
+            margin-right: 15px;
+            width: 20px; /* Fixed width for alignment */
+            text-align: center;
+            font-style: normal; /* Remove italics if using text */
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px; /* Mismo ancho que el sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* --- Header del Contenido --- */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--background-white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Espacio entre elementos */
+        }
+
+        .search-bar input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.4em; /* Ajusta tamaño del icono placeholder */
+            color: var(--text-light);
+        }
+        .notification-icon::after { /* Placeholder de icono */
+            content: '🔔';
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        /* --- Contenido Específico (Widgets/Tarjetas) --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--background-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 20px;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex; /* Added for better card structure */
+            flex-direction: column; /* Added for better card structure */
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            /* Removed border for course cards, handled by image potentially */
+            padding-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card-icon { /* Placeholder for icons within cards */
+            font-size: 1.3em;
+            color: var(--text-light);
+        }
+
+        .card-content {
+             flex-grow: 1; /* Allows content to fill space */
+             display: flex;
+             flex-direction: column;
+        }
+
+        .card-content p, .card-content ul {
+            margin-bottom: 10px;
+            color: var(--text-light);
+            font-size: 0.95em;
+        }
+
+        .card-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .card-content li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        /* Simple bullet point */
+        .card-content li::before {
+            content: '•';
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--background-light);
+            border-radius: 5px;
+            overflow: hidden;
+            height: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px; /* Added margin */
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0; /* Se establecerá dinámicamente */
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+        .progress-text {
+             text-align: right;
+             font-size: 0.85em;
+             color: var(--text-light);
+             margin-bottom: 15px; /* Space before button */
+        }
+
+        .course-card .card-image {
+            width: 100%;
+            height: 150px;
+            background-color: var(--background-light); /* Placeholder color */
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+             /* Adjust negative margins to align with padding */
+            margin: -20px -20px 15px -20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 3em; /* Larger placeholder icon */
+        }
+        /* Unique icons per course example */
+        .course-card.web-dev .card-image::before { content: '💻'; }
+        .course-card.ux-ui .card-image::before { content: '🎨'; }
+        .course-card.marketing .card-image::before { content: '📈'; }
+        .course-card.python .card-image::before { content: '🐍'; }
+
+
+        .button {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-size: 0.9em;
+            text-align: center; /* Center text in button */
+            margin-top: auto; /* Pushes button to bottom */
+        }
+
+        .button:hover {
+            background-color: #3a7ac8; /* Tono más oscuro de azul */
+            transform: translateY(-1px);
+        }
+        .button.secondary {
+            background-color: var(--secondary-color);
+        }
+         .button.secondary:hover {
+            background-color: #45ccb0; /* Tono más oscuro de verde menta */
+        }
+
+        /* --- Responsividad --- */
+        .menu-toggle {
+            display: none; /* Oculto por defecto */
+            font-size: 1.8em;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            padding: 5px;
+            margin-right: 10px; /* Espacio antes de la búsqueda o perfil */
+        }
+         .menu-toggle::before { /* Icono de hamburguesa simple */
+            content: '☰';
+        }
+
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px; /* Sidebar colapsado */
+                overflow: hidden;
+            }
+            /* Remove hover expansion for less jumpiness */
+            /* .sidebar:hover { width: 260px; } */
+
+            .sidebar-header .logo {
+                font-size: 1.5em; /* Sólo el icono */
+                padding-left: 10px;
+            }
+             .sidebar-header .logo span {
+                display: none; /* Oculta texto del logo */
+            }
+             .sidebar-header .logo::before {
+                margin-right: 0;
+            }
+
+
+            .sidebar-nav li a span {
+                display: none; /* Oculta texto de navegación */
+            }
+            .sidebar-nav li a i {
+                margin-right: 0;
+                 font-size: 1.3em; /* Iconos un poco más grandes */
+            }
+            .sidebar-nav li a {
+                justify-content: center; /* Centra el icono */
+                 padding: 15px 0;
+            }
+
+            .main-content {
+                margin-left: 70px; /* Ajusta margen al sidebar colapsado */
+            }
+        }
+
+
+        @media (max-width: 768px) {
+             .menu-toggle {
+                display: block; /* Muestra el botón de menú */
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px; /* Totalmente oculto fuera de pantalla */
+                width: 260px; /* Ancho completo al abrir */
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                box-shadow: var(--shadow-medium); /* Sombra más pronunciada */
+            }
+
+            .sidebar.open {
+                left: 0; /* Muestra el sidebar */
+            }
+
+            .main-content {
+                margin-left: 0; /* Ocupa todo el ancho */
+                padding: 20px; /* Reduce padding */
+            }
+
+             .sidebar-header .logo span {
+                display: inline; /* Muestra el texto del logo cuando está abierto en móvil */
+            }
+             .sidebar-nav li a span {
+                display: inline; /* Muestra el texto de nav cuando está abierto */
+            }
+              .sidebar-nav li a {
+                justify-content: flex-start; /* Alinea icono y texto a la izquierda */
+                padding: 12px 20px;
+            }
+            .sidebar-nav li a i {
+                margin-right: 15px;
+                font-size: 1em; /* Tamaño normal del icono */
+            }
+
+
+            .content-header {
+                /* Keep header items in one row if possible */
+                /* flex-direction: column; */
+                /* align-items: flex-start; */
+                gap: 10px;
+                padding: 15px;
+            }
+            .header-title {
+                font-size: 1.5em;
+                margin-right: auto; /* Pushes actions to the right */
+            }
+             .header-actions {
+                /* width: 100%; */ /* Allow natural width */
+                /* justify-content: space-between; */
+             }
+            .search-bar {
+                /* Hide search bar on smallest screens maybe? Or shrink it */
+                 flex-grow: 1;
+                 max-width: 180px; /* Limit search bar width */
+            }
+            .search-bar input {
+                min-width: 100px;
+                 /* flex-grow: 1; */
+                 /* margin-left: 10px; */
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr; /* Una sola columna */
+                gap: 20px;
+            }
+        }
+
+         /* Overlay para cerrar el menú móvil al hacer clic fuera */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 999; /* Detrás del sidebar pero sobre el contenido */
+        }
+        .overlay.active {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo"><span>EduPlat</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"class="active"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                    <li><a href="ayuda.html"><i>❓</i> <span>Ayuda</span></a></li>
+                    <li><a href="cerrarsesion.html"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button> <h1 class="header-title">Mis Cursos</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Buscar en mis cursos...">
+                    </div>
+                    <div class="notification-icon" title="Notificaciones">
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                        <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="content-grid">
+
+                <div class="card course-card web-dev"> <div class="card-image"></div> <div class="card-content">
+                        <h3 class="card-title" style="color: var(--text-dark); margin-bottom: 10px;">Desarrollo Web Moderno</h3>
+                        <p>Aprende a construir aplicaciones web interactivas con HTML, CSS y JavaScript.</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 65%; background-color: var(--secondary-color);"></div>
+                        </div>
+                        <p class="progress-text">65% completado</p>
+                        <a href="#" class="button">Ir al curso</a>
+                    </div>
+                </div>
+
+                 <div class="card course-card ux-ui"> <div class="card-image"></div>
+                     <div class="card-content">
+                        <h3 class="card-title" style="color: var(--text-dark); margin-bottom: 10px;">Diseño UX/UI</h3>
+                        <p>Principios de diseño centrado en el usuario y creación de interfaces atractivas.</p>
+                         <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 30%; background-color: var(--secondary-color);"></div>
+                        </div>
+                         <p class="progress-text">30% completado</p>
+                         <a href="#" class="button">Ir al curso</a>
+                    </div>
+                </div>
+
+                <div class="card course-card marketing"> <div class="card-image"></div>
+                     <div class="card-content">
+                         <h3 class="card-title" style="color: var(--text-dark); margin-bottom: 10px;">Marketing Digital Esencial</h3>
+                        <p>Estrategias clave para promocionar productos y servicios en línea.</p>
+                         <div class="progress-bar-container">
+                             <div class="progress-bar" style="width: 100%; background-color: var(--primary-color);"></div>
+                        </div>
+                         <p class="progress-text">100% completado</p>
+                         <a href="#" class="button secondary">Ver Certificado</a>
+                    </div>
+                </div>
+
+                 <div class="card course-card python"> <div class="card-image"></div>
+                     <div class="card-content">
+                         <h3 class="card-title" style="color: var(--text-dark); margin-bottom: 10px;">Introducción a Python</h3>
+                        <p>Fundamentos de programación con uno de los lenguajes más populares.</p>
+                         <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 15%; background-color: var(--secondary-color);"></div>
+                        </div>
+                         <p class="progress-text">15% completado</p>
+                         <a href="#" class="button">Ir al curso</a>
+                    </div>
+                </div>
+
+                 </section>
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // Lógica para el menú hamburguesa en móvil (igual que antes)
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+        }
+
+         // Simulación de carga de barras de progreso (igual que antes)
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                void bar.offsetWidth;
+                 const targetWidth = bar.style.width;
+                 setTimeout(() => { bar.style.width = targetWidth; }, 100);
+            });
+        });
+
+    </script>
+</body>
+</html>

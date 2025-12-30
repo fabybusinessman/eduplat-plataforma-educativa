@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajes - Plataforma Educativa</title>
+    <style>
+        /* --- Reseteo Básico y Fuentes --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2; /* Azul principal */
+            --secondary-color: #50e3c2; /* Verde menta secundario */
+            --accent-color: #f5a623; /* Naranja para acentos */
+            --background-light: #f8f9fa; /* Fondo muy claro */
+            --background-white: #ffffff;
+            --text-dark: #343a40; /* Texto principal oscuro */
+            --text-light: #6c757d; /* Texto secundario gris */
+            --border-color: #dee2e6;
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Rojo */
+            --success-color: #28a745; /* Verde */
+            --info-color: #17a2b8; /* Azul claro */
+            --message-sent-bg: #e9f2fc; /* Fondo mensaje enviado */
+            --message-received-bg: #f1f3f5; /* Fondo mensaje recibido */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            /* Prevent body scroll when message area scrolls */
+            overflow: hidden;
+        }
+
+        /* --- Estructura Principal (Sidebar + Contenido) --- */
+        .lms-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Navegación Principal) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed; /* Fijo en la pantalla */
+            height: 100%;
+            box-shadow: var(--shadow-light);
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 1000; /* Ensure sidebar is above content */
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .logo::before {
+            content: '🎓';
+            margin-right: 10px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: #e9f2fc;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav li a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* --- Área de Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+             /* Adjust padding or use height calculation */
+             /* padding: 30px; */
+            padding: 0; /* Remove padding to allow full height layout */
+            transition: margin-left 0.3s ease;
+            display: flex; /* Use flexbox for header + messages layout */
+            flex-direction: column;
+             /* Calculate height minus potential header/footer outside this */
+             /* For simplicity, use 100vh, but adjust if needed */
+            height: 100vh;
+        }
+
+        /* --- Header del Contenido --- */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Remove margin-bottom */
+            /* margin-bottom: 30px; */
+            background-color: var(--background-white);
+            padding: 15px 20px; /* Standard padding */
+            border-bottom: 1px solid var(--border-color); /* Add border */
+            /* Remove border-radius */
+            /* border-radius: var(--border-radius); */
+            box-shadow: var(--shadow-light);
+            /* Fix header height */
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar input { /* More relevant here */
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar img, .conversation-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-avatar img {
+             border: 2px solid var(--primary-color);
+        }
+         /* Placeholder avatar style */
+         .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1em;
+         }
+
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: var(--text-light);
+        }
+        .notification-icon::after {
+            content: '🔔';
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        /* --- Estilos Específicos de Mensajes --- */
+        .messages-layout {
+            display: flex;
+            flex-grow: 1; /* Takes remaining height */
+            overflow: hidden; /* Prevent overall layout scroll */
+            background-color: var(--background-white); /* White background for messaging area */
+        }
+
+        /* Columna Izquierda: Lista de Conversaciones */
+        .conversation-list {
+            width: 300px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .conversation-list-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+         .conversation-list-header button {
+             width: 100%;
+             padding: 10px;
+             background-color: var(--primary-color);
+             color: white;
+             border: none;
+             border-radius: var(--border-radius);
+             font-weight: 500;
+             cursor: pointer;
+             transition: background-color 0.2s ease;
+         }
+         .conversation-list-header button:hover {
+              background-color: #3a7ac8;
+         }
+         .conversation-list-header button i { margin-right: 8px; font-style: normal;}
+
+
+        .conversations-scrollable {
+             overflow-y: auto; /* Allow scrolling */
+             flex-grow: 1;
+        }
+
+        .conversation-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative; /* For unread badge positioning */
+        }
+        .conversation-item:hover {
+             background-color: var(--background-light);
+        }
+         .conversation-item.active {
+            background-color: var(--message-sent-bg); /* Light blue bg for active chat */
+            border-right: 3px solid var(--primary-color); /* Indicator */
+        }
+
+
+        .conversation-avatar { margin-right: 15px; }
+
+        .conversation-details {
+            flex-grow: 1;
+            overflow: hidden; /* Prevent text overflow */
+        }
+        .conversation-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-snippet {
+            font-size: 0.9em;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-meta {
+            text-align: right;
+            margin-left: 10px; /* Space from details */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+         .conversation-time {
+            font-size: 0.8em;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            display: block;
+        }
+         .unread-badge {
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0px 6px; /* Make it rounder */
+            font-size: 0.75em;
+            font-weight: 600;
+            display: inline-block;
+            line-height: 1.5; /* Adjust line height for centering */
+            min-width: 18px; /* Ensure minimum width */
+            text-align: center;
+        }
+
+
+        /* Columna Derecha: Vista del Mensaje */
+        .message-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+             /* Ensure it takes available space and allows scrolling */
+             overflow: hidden;
+        }
+
+        .message-view-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px; /* Slightly less padding */
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+         .message-view-header .conversation-name {
+            font-size: 1.2em;
+         }
+         .message-view-actions { /* Placeholder for actions */
+            margin-left: auto;
+         }
+          .message-view-actions button {
+             background: none; border: none; font-size: 1.3em; color: var(--text-light); cursor: pointer; margin-left: 15px;
+         }
+
+
+        .message-thread {
+            flex-grow: 1;
+            overflow-y: auto; /* Allow scrolling */
+            padding: 20px;
+            display: flex;
+            flex-direction: column; /* Stack messages */
+        }
+
+        .message-bubble {
+            max-width: 70%; /* Limit width */
+            padding: 10px 15px;
+            border-radius: 18px; /* Rounded bubbles */
+            margin-bottom: 10px;
+            position: relative; /* For timestamp */
+            line-height: 1.4;
+        }
+        .message-bubble.sent {
+            background-color: var(--message-sent-bg);
+            color: var(--text-dark); /* Darker text on light blue */
+            border-bottom-right-radius: 5px; /* Sent bubble tail */
+            align-self: flex-end; /* Align to right */
+            margin-left: auto; /* Push to right */
+        }
+        .message-bubble.received {
+            background-color: var(--message-received-bg);
+            color: var(--text-dark);
+            border-bottom-left-radius: 5px; /* Received bubble tail */
+            align-self: flex-start; /* Align to left */
+             margin-right: auto; /* Push to left */
+        }
+         .message-sender { /* Optional: Show sender name in group chats */
+             font-size: 0.8em;
+             font-weight: 600;
+             margin-bottom: 4px;
+             color: var(--primary-color);
+         }
+         .message-time {
+            font-size: 0.75em;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: right; /* Timestamp alignment varies per bubble */
+        }
+         .message-bubble.received .message-time { text-align: left; }
+
+
+        .message-compose {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0; /* Prevent shrinking */
+            background-color: #f8f9fa; /* Slightly different background */
+        }
+         .message-compose input[type="text"] {
+             flex-grow: 1;
+             padding: 10px 15px;
+             border: 1px solid var(--border-color);
+             border-radius: 20px; /* Pill shape */
+             font-size: 0.95em;
+         }
+          .message-compose button {
+              background-color: var(--primary-color);
+              border: none;
+              color: white;
+              border-radius: 50%; /* Round button */
+              width: 40px;
+              height: 40px;
+              font-size: 1.2em; /* Icon size */
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: background-color 0.2s ease;
+          }
+          .message-compose button:hover {
+              background-color: #3a7ac8;
+          }
+
+
+        /* --- Responsividad --- */
+        .menu-toggle { display: none; }
+        .menu-toggle::before { content: '☰'; }
+
+        @media (max-width: 992px) {
+            /* Sidebar collapses */
+            .sidebar { width: 70px; overflow: hidden; }
+            .sidebar-header .logo { font-size: 1.5em; padding-left: 10px; }
+            .sidebar-header .logo span { display: none; }
+            .sidebar-header .logo::before { margin-right: 0; }
+            .sidebar-nav li a span { display: none; }
+            .sidebar-nav li a i { margin-right: 0; font-size: 1.3em; }
+            .sidebar-nav li a { justify-content: center; padding: 15px 0; }
+            .main-content { margin-left: 70px; }
+            /* Adjust conversation list width */
+            .conversation-list { width: 240px; }
+        }
+
+        @media (max-width: 768px) {
+            /* Mobile menu toggle appears */
+             .menu-toggle {
+                 display: block;
+                 font-size: 1.8em; cursor: pointer; background: none; border: none;
+                 color: var(--primary-color); padding: 5px; margin-right: 10px;
+            }
+            /* Sidebar hides/shows */
+            .sidebar { position: fixed; left: -260px; width: 260px; height: 100vh; z-index: 1000; transition: left 0.3s ease; box-shadow: var(--shadow-medium); }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; /* Full width */}
+
+             /* Adjust sidebar content visibility when open */
+             .sidebar.open .sidebar-header .logo span { display: inline; }
+             .sidebar.open .sidebar-nav li a span { display: inline; }
+             .sidebar.open .sidebar-nav li a { justify-content: flex-start; padding: 12px 20px; }
+             .sidebar.open .sidebar-nav li a i { margin-right: 15px; font-size: 1em; }
+
+            /* Header adjustments */
+            .content-header { gap: 10px; padding: 15px; }
+            .header-title { font-size: 1.5em; margin-right: auto; }
+             .header-actions { /* Adjust actions if needed */ }
+            .search-bar { flex-grow: 1; max-width: 150px; }
+            .search-bar input { min-width: 80px; }
+
+            /* Mobile Message Layout - Show only one column at a time? */
+            /* Option 1: Show list first, click to show message view */
+            .messages-layout { position: relative; /* For absolute positioning */ }
+             .conversation-list {
+                width: 100%; /* Full width */
+                position: absolute; /* Take out of flow */
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 2; /* Above message view */
+                transition: left 0.3s ease;
+                 background-color: var(--background-white); /* Ensure background */
+            }
+             .message-view {
+                 width: 100%; /* Full width */
+                 position: absolute;
+                 left: 0; /* Initially aligned */
+                 top: 0;
+                 height: 100%;
+                 z-index: 1; /* Below conversation list */
+                  /* transition: left 0.3s ease; */ /* Can add transition */
+            }
+             /* State when viewing a message */
+             .messages-layout.viewing-message .conversation-list {
+                 left: -100%; /* Slide list off-screen */
+             }
+             /* Need JS to toggle .viewing-message class */
+
+             /* Adjust bubble size */
+             .message-bubble { max-width: 85%; }
+        }
+
+         /* Overlay for mobile menu */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999; }
+        .overlay.active { display: block; }
+
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="logo"><span>EduPlat</span></a> </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li><a href="dashboard.html"><i>🏠</i> <span>Dashboard</span></a></li>
+                    <li><a href="cursos.html"><i>📚</i> <span>Mis Cursos</span></a></li>
+                    <li><a href="calendario.html"><i>🗓️</i> <span>Calendario</span></a></li>
+                    <li><a href="calificaciones.html"><i>📊</i> <span>Calificaciones</span></a></li>
+                    <li><a href="mensajes.html"class="active"><i>💬</i> <span>Mensajes</span></a></li>
+                    <li><a href="configuracion.html"><i>⚙️</i> <span>Configuración</span></a></li>
+                    <li><a href="ayuda.html"><i>❓</i> <span>Ayuda</span></a></li>
+                    <li><a href="cerrarsesion.html"><i>🚪</i> <span>Cerrar Sesión</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                 <button class="menu-toggle" id="menu-toggle"></button> <h1 class="header-title">Mensajes</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Buscar mensajes o usuarios...">
+                    </div>
+                    <div class="notification-icon" title="Notificaciones">
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGE5MGUyIj48cGF0aCBkPSJNMTIgMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTUuMjQtNS01LTUgME0xMiAxNGMtMy44NyAwLTExLjUgMS45NC0xMS41IDUuNzVWMTljMCAxLjEgLjkxIDIgMiAySDIxLjVjMS4wOSAwIDItLjkgMi0yVjE5Ljc1QzIzLjUgMTUuOTQgMTUuODcgMTQgMTIgMTR6Ii8+PC9zdmc+" alt="Avatar">
+                        </div>
+                        <span class="user-name">Fabián Herrera</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="messages-layout" id="messages-layout"> <aside class="conversation-list">
+                    <div class="conversation-list-header">
+                        <button><i class="fa fa-pencil-square-o" aria-hidden="true">✏️</i> Nuevo Mensaje</button>
+                    </div>
+                    <div class="conversations-scrollable">
+                        <ul>
+                            <li class="conversation-item active" onclick="showConversation('Profesor Silva')"> <div class="conversation-avatar">
+                                    <div class="avatar-placeholder">PS</div>
+                                </div>
+                                <div class="conversation-details">
+                                    <div class="conversation-name">Profesor Silva</div>
+                                    <div class="conversation-snippet">Ok, revisaré tu consulta sobre...</div>
+                                </div>
+                                <div class="conversation-meta">
+                                    <span class="conversation-time">Ayer</span>
+                                    </div>
+                            </li>
+                            <li class="conversation-item" onclick="showConversation('Equipo Proyecto Web')">
+                                <div class="conversation-avatar">
+                                     <div class="avatar-placeholder">EP</div>
+                                </div>
+                                <div class="conversation-details">
+                                    <div class="conversation-name">Equipo Proyecto Web</div>
+                                    <div class="conversation-snippet">Juan: ¿Alguien tiene el último wireframe?</div>
+                                </div>
+                                <div class="conversation-meta">
+                                    <span class="conversation-time">11:30</span>
+                                    <span class="unread-badge">2</span>
+                                </div>
+                            </li>
+                             <li class="conversation-item" onclick="showConversation('Carla Gómez')">
+                                <div class="conversation-avatar">
+                                     <div class="avatar-placeholder">CG</div>
+                                </div>
+                                <div class="conversation-details">
+                                    <div class="conversation-name">Carla Gómez</div>
+                                    <div class="conversation-snippet">¡Gracias por la ayuda de ayer!</div>
+                                </div>
+                                <div class="conversation-meta">
+                                    <span class="conversation-time">Mar 01</span>
+                                    </div>
+                            </li>
+                             <li class="conversation-item" onclick="showConversation('Anuncios Desarrollo Web')">
+                                <div class="conversation-avatar">
+                                     <div class="avatar-placeholder">📢</div>
+                                </div>
+                                <div class="conversation-details">
+                                    <div class="conversation-name">Anuncios Desarrollo Web</div>
+                                    <div class="conversation-snippet">Recordatorio: Entrega proyecto final...</div>
+                                </div>
+                                <div class="conversation-meta">
+                                    <span class="conversation-time">Lun 31</span>
+                                     <span class="unread-badge">1</span>
+                                </div>
+                            </li>
+                             </ul>
+                    </div>
+                </aside>
+
+                <section class="message-view">
+                     <div class="message-view-header">
+                         <div class="conversation-avatar" style="margin-right: 10px;">
+                             <div class="avatar-placeholder">PS</div>
+                         </div>
+                        <span class="conversation-name">Profesor Silva</span>
+                         <div class="message-view-actions">
+                             <button title="Llamar">📞</button>
+                             <button title="Más opciones">⋮</button>
+                         </div>
+                    </div>
+
+                    <div class="message-thread">
+                        <div class="message-bubble received">
+                            Hola Ana, recibí tu consulta sobre el proyecto final. ¿Tienes alguna duda específica sobre la sección 3?
+                            <span class="message-time">Ayer, 15:30</span>
+                        </div>
+                        <div class="message-bubble sent">
+                            ¡Hola Profesor! Sí, específicamente sobre cómo implementar la autenticación. ¿El método que vimos en clase es suficiente?
+                            <span class="message-time">Ayer, 15:35</span>
+                        </div>
+                         <div class="message-bubble received">
+                            Sí, el método basado en tokens JWT que vimos es adecuado para los requerimientos del proyecto. Asegúrate de manejar bien la expiración del token.
+                            <span class="message-time">Ayer, 15:42</span>
+                        </div>
+                         <div class="message-bubble received">
+                            También revisa el ejemplo que subí a la plataforma en la sección de Recursos Adicionales, podría ayudarte.
+                             <span class="message-time">Ayer, 15:43</span>
+                        </div>
+                         <div class="message-bubble sent">
+                            Ok, revisaré tu consulta sobre la expiración y el ejemplo. ¡Muchas gracias, Profesor!
+                             <span class="message-time">Ayer, 15:50</span>
+                        </div>
+                         <div class="message-bubble received">
+                            De nada. ¡Éxito con el proyecto!
+                            <span class="message-time">Ayer, 15:51</span>
+                        </div>
+                         </div>
+
+                     <div class="message-compose">
+                        <input type="text" placeholder="Escribe tu mensaje aquí...">
+                        <button title="Enviar mensaje">➤</button> </div>
+                </section>
+
+            </div>
+            </main>
+    </div>
+
+     <div class="overlay" id="overlay"></div>
+
+    <script>
+        // --- Lógica Menú Hamburguesa Móvil (igual que antes) ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // --- Lógica básica (simulada) para cambiar vista en móvil ---
+        const messagesLayout = document.getElementById('messages-layout');
+        const conversationItems = document.querySelectorAll('.conversation-item');
+
+        // Función para simular la vista de conversación en móvil
+        function showConversation(name) { // name es solo un ejemplo
+            // Solo aplica la clase en pantallas pequeñas donde el layout cambia
+             if (window.innerWidth <= 768 && messagesLayout) {
+                messagesLayout.classList.add('viewing-message');
+                // Aquí podrías cargar dinámicamente los mensajes de 'name'
+                // o al menos actualizar el header de message-view
+                 console.log("Mostrando conversación:", name); // Para depuración
+            }
+             // Marcar item activo (esto debería hacerse siempre)
+             conversationItems.forEach(item => item.classList.remove('active'));
+             // Encontrar el item clickeado y marcarlo (necesitaría un selector más robusto)
+             // event.currentTarget.classList.add('active'); // Si se pasa el evento
+        }
+
+         // Añadir un botón "Atrás" en la vista de mensaje para móvil (requiere añadir el botón en HTML)
+         // y añadir un listener para quitar la clase 'viewing-message'
+         /*
+         const backButton = document.getElementById('back-to-list-button'); // Suponiendo que existe
+         if(backButton && messagesLayout) {
+             backButton.addEventListener('click', () => {
+                  if (window.innerWidth <= 768) {
+                      messagesLayout.classList.remove('viewing-message');
+                  }
+             });
+         }
+         */
+
+
+        // Simular marcar como activo al hacer clic (simplificado)
+         conversationItems.forEach(item => {
+             item.addEventListener('click', (event) => {
+                 // Llama a la función para cambiar layout en móvil
+                 // Pasamos el nombre como ejemplo, podrías pasar un ID único
+                  const name = item.querySelector('.conversation-name').textContent;
+                  showConversation(name);
+
+                 // Actualiza el estado activo visualmente (para todas las pantallas)
+                 conversationItems.forEach(i => i.classList.remove('active'));
+                 event.currentTarget.classList.add('active');
+
+                  // --- IMPORTANTE: Carga de contenido real ---
+                 // En una app real, aquí harías una llamada (AJAX/fetch)
+                 // para obtener los mensajes de esta conversación y actualizar
+                 // el .message-thread y el .message-view-header dinámicamente.
+                 // Como esto es estático, solo cambia la clase 'active'.
+             });
+         });
+
+    </script>
+</body>
+</html>

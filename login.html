@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - EduPlat</title>
+    <style>
+        /* --- Estilos para la Página de Login --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --login-primary: #4a90e2;
+            --login-text-dark: #343a40;
+            --login-text-light: #6c757d;
+            --login-bg-light: #f8f9fa;
+            --login-bg-white: #ffffff;
+            --login-border-color: #dee2e6;
+            --login-error-color: #dc3545; /* Rojo para errores */
+            --login-border-radius: 8px;
+            --login-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Agrégalo DENTRO de la etiqueta <style> */
+
+
+        .button {
+    display: block; /* Para que ocupen el ancho y respeten márgenes */
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px; /* Espacio sobre cada botón */
+    text-decoration: none;
+    border: none;
+    border-radius: var(--login-border-radius);
+    font-weight: 500;
+    font-size: 1.05em; /* Tamaño de fuente base para botones */
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    text-align: center;
+}
+.button:hover {
+    transform: translateY(-1px);
+}
+
+/* Estilo para el botón primario (Ingresar) */
+/* Reemplaza o ajusta tu clase .login-button con esto */
+.button.primary {
+     background-color: var(--login-primary);
+     color: white;
+     margin-top: 30px; /* Margen superior específico para el botón principal */
+}
+.button.primary:hover {
+     background-color: #3a7ac8;
+}
+/* IMPORTANTE: Si haces esto, asegúrate de cambiar en el HTML: */
+/* <button type="submit" class="login-button"> a */
+/* <button type="submit" class="button primary"> */
+
+
+/* --- PASO 3: AÑADE el estilo para el botón secundario --- */
+.button.secondary {
+    background-color: transparent; /* Fondo transparente */
+    color: var(--login-primary); /* Texto color primario */
+    border: 1px solid var(--login-primary); /* Borde color primario */
+    font-size: 1em; /* Un poco más pequeño que el primario */
+}
+.button.secondary:hover {
+    background-color: rgba(74, 144, 226, 0.1); /* Fondo azul muy claro al pasar */
+    border-color: var(--login-primary);
+}
+
+/* --- PASO 4: AJUSTA el contenedor del botón de volver --- */
+.back-link-container {
+    margin-top: 0; /* El margen ya está en la clase .button */
+    /* text-align: center; <- No necesario si es display: block */
+}
+
+
+
+
+/* Ajuste opcional al margen del botón de login si es necesario */
+.login-button {
+    /* Puede que quieras reducir un poco el margin-top si el espacio es mucho */
+    /* margin-top: 25px; */
+}
+
+
+
+        * {
+style            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* --- Dentro de la etiqueta <style> en login.html --- */
+
+/* ... (otros estilos como :root, *, etc. se mantienen) ... */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    /* background-color: var(--login-bg-light); */ /* <-- ELIMINA O COMENTA ESTA LÍNEA */
+    color: var(--login-text-dark);
+    line-height: 1.6;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative; /* Añadido por si acaso, útil para ::before absoluto */
+    overflow: hidden; /* Ayuda a contener el blur */
+}
+
+
+
+/* --- AÑADE ESTE NUEVO BLOQUE CSS --- */
+body::before {
+    content: '';
+    position: fixed; /* Fijo para cubrir toda la ventana */
+    top: -10px; /* Extender ligeramente para cubrir bordes del blur */
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1; /* Colocar detrás de todo el contenido */
+
+    /* Imagen de fondo */
+    background-image: url('profesorareal.png'); /* <-- Tu imagen */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    /* Desenfoque (ajusta 8px si quieres más o menos) */
+    filter: blur(5px);
+
+    /* Opcional: ligero oscurecimiento sobre la imagen difuminada */
+    /* background-color: rgba(0, 0, 0, 0.1); */
+    /* background-blend-mode: multiply; */
+}
+/* --- FIN DEL NUEVO BLOQUE CSS --- */
+
+/* Asegúrate que .login-container tenga un fondo sólido */
+.login-container {
+    background-color: var(--login-bg-white); /* <-- VERIFICA QUE ESTÁ ASÍ */
+    padding: 40px;
+    border-radius: var(--login-border-radius);
+    box-shadow: var(--login-shadow);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    position: relative; /* Para asegurar que está sobre el ::before */
+    z-index: 1; /* Para asegurar que está sobre el ::before */
+}
+
+/* ... (El resto de tus estilos para .login-logo, form-group, etc., se mantienen) ... */
+
+
+
+        .login-logo {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--login-primary);
+            text-decoration: none;
+            margin-bottom: 15px;
+            display: block; /* Para que el margin funcione */
+        }
+        .login-logo::before {
+             content: '🎓';
+             margin-right: 8px;
+        }
+
+        .login-container h2 {
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: var(--login-text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left; /* Alinear labels a la izquierda */
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--login-border-color);
+            border-radius: var(--login-border-radius);
+            font-size: 1em;
+            font-family: inherit;
+        }
+         .form-group input:focus {
+             border-color: var(--login-primary);
+             outline: none;
+             box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        .login-button { /* Botón de submit */
+            display: block; /* Ocupar todo el ancho */
+            width: 100%;
+            padding: 12px;
+            margin-top: 30px; /* Espacio antes del botón */
+            background-color: var(--login-primary);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: var(--login-border-radius);
+            font-weight: 500;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .login-button:hover {
+            background-color: #3a7ac8;
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: var(--login-error-color);
+            font-size: 0.9em;
+            margin-top: 15px;
+            min-height: 1.2em; /* Espacio reservado para que no salte el layout */
+            display: none; /* Oculto por defecto */
+        }
+        .error-message.visible {
+             display: block; /* Mostrar cuando hay error */
+        }
+
+        .extra-links {
+             margin-top: 25px;
+             font-size: 0.9em;
+        }
+         .extra-links a {
+             color: var(--login-primary);
+             text-decoration: none;
+         }
+          .extra-links a:hover {
+              text-decoration: underline;
+          }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <a href="inicio.html" class="login-logo">EduPlat</a>
+        <h2>Iniciar Sesión</h2>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                 <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+
+            <p id="error-message" class="error-message"></p>
+
+            <button type="submit" class="login-button">Ingresar</button>
+        </form>
+
+        <div class="back-link-container">
+    <a href="inicio.html" class="button secondary">← Volver a Inicio</a>
+</div>
+
+        <div class="extra-links">
+            <a href="#">¿Olvidaste tu contraseña?</a>
+            </div>
+    </div>
+
+    <script>
+        // --- Lógica de Login (Simulación Front-End) ---
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('error-message');
+
+        // --- IMPORTANTE: Credenciales hardcodeadas - SOLO PARA PROTOTIPO ---
+        const validUsername = 'fherrera';
+        const validPassword = 'fherrera';
+        // --- ¡NUNCA HACER ESTO EN PRODUCCIÓN! ---
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+
+            const enteredUsername = usernameInput.value;
+            const enteredPassword = passwordInput.value;
+
+            // Limpiar mensaje de error anterior
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('visible');
+
+            // Verificar credenciales (simulación)
+            if (enteredUsername === validUsername && enteredPassword === validPassword) {
+                // Éxito: Redirigir al dashboard
+                // console.log('Login exitoso, redirigiendo...'); // Para depuración
+                window.location.href = 'dashboard.html'; // Redirige a la página del dashboard
+            } else {
+                // Error: Mostrar mensaje
+                // console.log('Login fallido'); // Para depuración
+                errorMessage.textContent = 'Usuario o contraseña incorrectos.';
+                errorMessage.classList.add('visible'); // Muestra el mensaje
+            }
+        });
+
+         // Opcional: Ocultar error al empezar a escribir de nuevo
+         usernameInput.addEventListener('input', () => {
+             errorMessage.textContent = '';
+             errorMessage.classList.remove('visible');
+         });
+         passwordInput.addEventListener('input', () => {
+             errorMessage.textContent = '';
+             errorMessage.classList.remove('visible');
+         });
+
+    </script>
+
+</body>
+</html>
