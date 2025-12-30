@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Mis Cursos Reales</title>
+    <title>EduPlat - Mis Cursos</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -20,62 +20,101 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--background-light); display: flex; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-light); display: flex; min-height: 100vh; }
 
-        /* Sidebar & Layout */
-        .sidebar { width: 260px; background: white; height: 100vh; position: fixed; border-right: 1px solid var(--border-color); padding: 30px 20px; }
-        .main-content { margin-left: 260px; width: 100%; padding: 40px; }
+        /* Sidebar */
+        .sidebar { width: 260px; background: white; height: 100vh; position: fixed; border-right: 1px solid var(--border-color); padding: 30px 20px; z-index: 100; }
+        .sidebar-logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; display: block; margin-bottom: 40px; }
+        
+        /* Main Content */
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
 
         /* Grid de Cursos */
-        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
 
         /* Tarjeta de Curso */
-        .course-card { background: white; border-radius: var(--border-radius); padding: 25px; box-shadow: var(--shadow); transition: transform 0.3s; }
+        .course-card { background: white; border-radius: var(--border-radius); padding: 25px; box-shadow: var(--shadow); transition: transform 0.3s; position: relative; }
         .course-card:hover { transform: translateY(-5px); }
         .progress-bar-bg { background: #eee; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; }
         .progress-bar-fill { background: var(--secondary-color); height: 100%; width: 0; transition: width 1s ease; }
 
-        /* Botón Flotante Añadir */
+        /* Botón Flotante "+" - ASEGÚRATE DE QUE ESTO ESTÉ */
         .fab-add {
-            position: fixed; bottom: 40px; right: 40px;
-            width: 60px; height: 60px; background: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: 30px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); border: none;
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 65px;
+            height: 65px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(74, 144, 226, 0.5);
+            border: none;
+            z-index: 9999; /* Para que siempre esté arriba */
+            transition: transform 0.2s, background-color 0.2s;
         }
+        .fab-add:hover { transform: scale(1.1); background-color: #357abd; }
 
-        /* Modal (Formulario) */
+        /* Modal */
         .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center;
         }
-        .modal-content { background: white; padding: 30px; border-radius: var(--border-radius); width: 400px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .modal-content { 
+            background: white; 
+            padding: 35px; 
+            border-radius: var(--border-radius); 
+            width: 90%; 
+            max-width: 450px; 
+            box-shadow: var(--shadow);
+        }
+        .modal-content h3 { margin-bottom: 20px; color: var(--text-dark); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
         
-        .nav-link { text-decoration: none; color: var(--text-light); display: flex; padding: 12px; gap: 10px; border-radius: 8px; }
-        .nav-link.active { background: #eef5ff; color: var(--primary-color); font-weight: bold; }
+        .nav-link { text-decoration: none; color: var(--text-light); display: flex; padding: 12px; gap: 12px; border-radius: 8px; transition: 0.3s; }
+        .nav-link.active { background: #eef5ff; color: var(--primary-color); font-weight: 600; }
+        
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-ghost { background: transparent; border: none; color: var(--text-light); cursor: pointer; padding: 10px; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <h2 style="color:var(--primary-color); margin-bottom: 30px;">🎓 EduPlat</h2>
+        <a href="dashboard.html" class="sidebar-logo">🎓 EduPlat</a>
         <nav>
             <a href="dashboard.html" class="nav-link">🏠 Dashboard</a>
             <a href="cursos.html" class="nav-link active">📚 Mis Cursos</a>
             <a href="apuntes.html" class="nav-link">📝 Apuntes</a>
-            <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:red;">🚪 Salir</a>
+            <a href="configuracion.html" class="nav-link">⚙️ Configuración</a>
+            <a href="cerrarsesion.html" class="nav-link" style="margin-top:40px; color:#dc3545;">🚪 Cerrar Sesión</a>
         </nav>
     </aside>
 
     <main class="main-content">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
+        <header>
             <h1>Mis Cursos</h1>
-            <div id="user-info" style="display:flex; align-items:center; gap:10px;">
-                <span id="user-name">Cargando...</span>
-                <img id="user-photo" src="" style="width:40px; border-radius:50%;">
+            <div style="display:flex; align-items:center; gap:15px; background:white; padding:10px 20px; border-radius:50px; box-shadow: var(--shadow);">
+                <span id="user-name-display" style="font-weight: 500;">Cargando...</span>
+                <img id="user-photo-display" src="" style="width:35px; height:35px; border-radius:50%; object-fit: cover;">
             </div>
         </header>
 
@@ -83,22 +122,22 @@
             </div>
     </main>
 
-    <button class="fab-add" id="open-modal">+</button>
+    <button class="fab-add" id="open-modal-btn" title="Añadir nuevo curso">+</button>
 
-    <div class="modal" id="modal-curso">
+    <div class="modal" id="course-modal">
         <div class="modal-content">
-            <h3>Nuevo Curso</h3><br>
+            <h3>🚀 Añadir Nuevo Curso</h3>
             <div class="form-group">
-                <label>Nombre del curso</label>
-                <input type="text" id="course-name" placeholder="Ej: React avanzado">
+                <label for="new-course-name">Nombre de la materia</label>
+                <input type="text" id="new-course-name" placeholder="Ej: Programación Avanzada">
             </div>
             <div class="form-group">
-                <label>Progreso inicial (%)</label>
-                <input type="number" id="course-progress" value="0" max="100">
+                <label for="new-course-progress">Progreso actual (%)</label>
+                <input type="number" id="new-course-progress" value="0" min="0" max="100">
             </div>
-            <div style="display:flex; gap:10px; justify-content: flex-end;">
-                <button onclick="cerrarModal()" style="border:none; background:none; cursor:pointer;">Cancelar</button>
-                <button id="save-course" style="background:var(--primary-color); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Guardar</button>
+            <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 10px;">
+                <button class="btn-ghost" id="close-modal-btn">Cancelar</button>
+                <button class="btn-primary" id="save-course-btn">Crear Curso</button>
             </div>
         </div>
     </div>
@@ -109,21 +148,23 @@
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const container = document.getElementById('courses-container');
-        const modal = document.getElementById('modal-curso');
+        const modal = document.getElementById('course-modal');
+        const openModalBtn = document.getElementById('open-modal-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const saveCourseBtn = document.getElementById('save-course-btn');
 
-        // 1. Verificar Usuario y Cargar Cursos en Tiempo Real
+        // 1. CONTROL DE SESIÓN Y CARGA
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('user-name').textContent = user.displayName;
-                document.getElementById('user-photo').src = user.photoURL;
+                document.getElementById('user-name-display').textContent = user.displayName;
+                document.getElementById('user-photo-display').src = user.photoURL;
 
-                // Escuchar cambios en Firestore (Colección de cursos del usuario)
-                const q = query(collection(db, "users", user.uid, "cursos"), orderBy("nombre"));
+                // Cargar cursos en tiempo real
+                const q = query(collection(db, "users", user.uid, "cursos"), orderBy("fecha_creacion", "desc"));
                 onSnapshot(q, (snapshot) => {
                     container.innerHTML = '';
                     snapshot.forEach((doc) => {
-                        const curso = doc.data();
-                        renderCard(curso);
+                        renderCourseCard(doc.data());
                     });
                 });
             } else {
@@ -131,40 +172,63 @@
             }
         });
 
-        // 2. Función para dibujar las tarjetas
-        function renderCard(curso) {
-            const div = document.createElement('div');
-            div.className = 'course-card';
-            div.innerHTML = `
-                <h3>${curso.nombre}</h3>
+        // 2. RENDERIZAR TARJETAS
+        function renderCourseCard(curso) {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            card.innerHTML = `
+                <h3 style="margin-bottom:15px;">${curso.nombre}</h3>
+                <p style="color:var(--text-light); font-size:0.9em;">Progreso del curso:</p>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${curso.progreso}%"></div>
                 </div>
-                <p style="color:var(--text-light)">${curso.progreso}% completado</p>
-                <button class="nav-link" style="width:100%; justify-content:center; margin-top:15px; border:1px solid #ddd; cursor:pointer;">Continuar</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:600; color:var(--primary-color);">${curso.progreso}%</span>
+                    <button class="btn-primary" style="padding: 8px 15px; font-size: 0.8em;">Abrir</button>
+                </div>
             `;
-            container.appendChild(div);
+            container.appendChild(card);
         }
 
-        // 3. Lógica del Modal y Guardado
-        document.getElementById('open-modal').onclick = () => modal.style.display = 'flex';
-        window.cerrarModal = () => modal.style.display = 'none';
+        // 3. LOGICA DEL MODAL
+        openModalBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
 
-        document.getElementById('save-course').onclick = async () => {
-            const name = document.getElementById('course-name').value;
-            const progress = document.getElementById('course-progress').value;
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Cerrar al hacer clic fuera del cuadro blanco
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // 4. GUARDAR EN FIREBASE
+        saveCourseBtn.addEventListener('click', async () => {
+            const name = document.getElementById('new-course-name').value;
+            const progress = document.getElementById('new-course-progress').value;
             const user = auth.currentUser;
 
-            if (name && user) {
-                await addDoc(collection(db, "users", user.uid, "cursos"), {
-                    nombre: name,
-                    progreso: parseInt(progress),
-                    fecha_creacion: new Date()
-                });
-                document.getElementById('course-name').value = '';
-                cerrarModal();
+            if (name.trim() !== "" && user) {
+                try {
+                    await addDoc(collection(db, "users", user.uid, "cursos"), {
+                        nombre: name,
+                        progreso: parseInt(progress) || 0,
+                        fecha_creacion: new Date()
+                    });
+                    
+                    // Limpiar y cerrar
+                    document.getElementById('new-course-name').value = '';
+                    document.getElementById('new-course-progress').value = '0';
+                    modal.style.display = 'none';
+                } catch (error) {
+                    alert("Error al guardar: " + error.message);
+                }
+            } else {
+                alert("Por favor escribe el nombre del curso.");
             }
-        };
+        });
     </script>
 </body>
 </html>
