@@ -2,221 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Mi Dashboard</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #50e3c2;
-            --background-light: #f8f9fa;
-            --background-white: #ffffff;
-            --text-dark: #343a40;
-            --text-light: #6c757d;
-            --border-color: #dee2e6;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --border-radius: 12px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--background-light); color: var(--text-dark); display: flex; }
-
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--background-white);
-            height: 100vh;
-            position: fixed;
-            border-right: 1px solid var(--border-color);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 40px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-menu { list-style: none; flex-grow: 1; }
-        .nav-item { margin-bottom: 10px; }
-        .nav-link {
-            text-decoration: none;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-radius: var(--border-radius);
-            transition: all 0.3s;
-            gap: 12px;
-        }
-        .nav-link:hover, .nav-link.active {
-            background-color: #eef5ff;
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-
-        /* --- Main Content --- */
-        .main-content { margin-left: 260px; width: 100%; padding: 30px; }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
-            padding: 8px 15px;
-            border-radius: 50px;
-            box-shadow: var(--shadow);
-        }
-
-        .profile-img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-            background-color: #ddd;
-        }
-
-        /* --- Dashboard Cards --- */
-        .welcome-section {
-            background: linear-gradient(135deg, var(--primary-color), #67b0ff);
-            color: white;
-            padding: 40px;
-            border-radius: var(--border-radius);
-            margin-bottom: 30px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-        }
-
-        .progress-bar-container {
-            background: #eee;
-            height: 8px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--secondary-color);
-            border-radius: 10px;
-            transition: width 1s ease-in-out;
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-        }
-    </style>
+    <title>EduPlat - Dashboard</title>
 </head>
 <body>
-
-    <aside class="sidebar" id="sidebar">
-        <a href="#" class="sidebar-logo">🎓 EduPlat</a>
-        <nav class="nav-menu">
-            <li class="nav-item"><a href="dashboard.html" class="nav-link active">🏠 Dashboard</a></li>
-            <li class="nav-item"><a href="cursos.html" class="nav-link">📚 Mis Cursos</a></li>
-            <li class="nav-item"><a href="calendario.html" class="nav-link">📅 Calendario</a></li>
-            <li class="nav-item"><a href="apuntes.html" class="nav-link">📝 Apuntes</a></li>
-            <li class="nav-item"><a href="configuracion.html" class="nav-link">⚙️ Configuración</a></li>
-            <li class="nav-item" style="margin-top: 50px;">
-                <a href="cerrarsesion.html" class="nav-link" style="color: #dc3545;">🚪 Cerrar Sesión</a>
-            </li>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <header class="header">
-            <h1>Panel de Control</h1>
-            <div class="user-profile">
-                <span id="header-user-name" style="font-weight: 500; font-size: 0.9em;">Cargando...</span>
-                <img id="header-user-photo" src="" alt="Avatar" class="profile-img">
-            </div>
-        </header>
-
-        <section class="welcome-section">
-            <h2 id="welcome-msg">¡Bienvenido de nuevo!</h2>
-            <p>Tienes 3 tareas pendientes para esta semana. ¡Sigue así!</p>
-        </section>
-
-        <div class="stats-grid">
-            <div class="card">
-                <h3>Curso: Programación Web</h3>
-                <p class="text-light">Progreso actual</p>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 75%;"></div>
-                </div>
-                <small>75% completado</small>
-            </div>
-            <div class="card">
-                <h3>Curso: Diseño UI/UX</h3>
-                <p class="text-light">Progreso actual</p>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 40%;"></div>
-                </div>
-                <small>40% completado</small>
-            </div>
+    <div style="padding: 50px; text-align: center;">
+        <h1 id="user-name">Cargando...</h1>
+        <div style="margin-top: 20px;">
+            <a href="apuntes.html" style="padding: 10px 20px; background: #4a90e2; color: white; text-decoration: none; border-radius: 5px;">Ir a mis Apuntes</a>
+            <br><br>
+            <a href="cerrarsesion.html" style="color: red;">Cerrar Sesión</a>
         </div>
-    </main>
+    </div>
 
     <script type="module">
-        // 1. Obtener los datos guardados en el Login
-        const userName = localStorage.getItem('user_name');
-        const userPhoto = localStorage.getItem('user_photo');
+        import { auth } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // 2. Personalizar la interfaz si hay un usuario logueado
-        if (userName) {
-            // Poner solo el primer nombre en el saludo
-            const firstName = userName.split(' ')[0];
-            document.getElementById('welcome-msg').textContent = `¡Bienvenido de nuevo, ${firstName}! 👋`;
-            document.getElementById('header-user-name').textContent = userName;
-        }
-
-        if (userPhoto) {
-            document.getElementById('header-user-photo').src = userPhoto;
-        } else {
-            // Foto por defecto si no hay
-            document.getElementById('header-user-photo').src = 'https://ui-avatars.com/api/?name=' + userName;
-        }
-
-        // Animación de barras de progreso
-        window.addEventListener('load', () => {
-            const bars = document.querySelectorAll('.progress-bar');
-            bars.forEach(bar => {
-                const width = bar.style.width;
-                bar.style.width = '0%';
-                setTimeout(() => {
-                    bar.style.width = width;
-                }, 300);
-            });
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-name').innerText = "Bienvenido, " + user.displayName;
+            } else {
+                window.location.replace('login.html');
+            }
         });
     </script>
 </body>

@@ -2,194 +2,33 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Gestión de Apuntes</title>
+    <title>EduPlat - Iniciar Sesión</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); display: flex; height: 100vh; color: #333; }
-
-        .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
-        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
-        .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
-
-        .explorer { width: 340px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
-        
-        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
-        .item:hover { background: #f4f7f6; }
-        .item.active { background: var(--primary) !important; color: white !important; }
-        .item-actions { display: none; gap: 8px; }
-        .item:hover .item-actions { display: flex; }
-        
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; }
-        .btn-small { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
-
-        .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
-        .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .editor-body { padding: 30px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
-        
-        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); width: 100%; }
-        #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; width: 100%; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        button { background: #4a90e2; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; }
     </style>
 </head>
 <body>
-
-    <nav class="sidebar">
-        <h2 style="color:var(--primary); margin-bottom: 25px;">EduPlat</h2>
-        <a href="dashboard.html" class="nav-link">🏠 Dashboard</a>
-        <a href="cursos.html" class="nav-link">📚 Cursos</a>
-        <a href="apuntes.html" class="nav-link active">📝 Apuntes</a>
-        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:var(--danger);">🚪 Salir</a>
-    </nav>
-
-    <div class="explorer">
-        <div class="section-header">
-            <strong>Carpetas</strong>
-            <button class="btn-small" id="add-folder">+ Nueva</button>
-        </div>
-        <div id="folder-list" class="list-area" style="max-height: 40%; border-bottom: 1px solid #eee;"></div>
-
-        <div class="section-header">
-            <strong>Archivos en: <span id="folder-label" style="color:var(--primary)">General</span></strong>
-            <button class="btn-small" id="add-file">+ Nuevo</button>
-        </div>
-        <div id="file-list" class="list-area"></div>
+    <div class="login-card">
+        <h1>🎓 EduPlat</h1>
+        <p>Bienvenido. Inicia sesión para gestionar tus apuntes.</p>
+        <button id="btn-login">Iniciar sesión con Google</button>
     </div>
 
-    <main class="editor">
-        <div class="editor-header">
-            <span id="save-status" style="font-size: 0.9em; font-weight: 600;"></span>
-            <button class="btn-save" id="save-btn">Guardar Apunte</button>
-        </div>
-        <div class="editor-body">
-            <input type="text" id="input-title" placeholder="Título del archivo...">
-            <textarea id="textarea-body" placeholder="Empieza a escribir tus apuntes aquí..."></textarea>
-        </div>
-    </main>
-
     <script type="module">
-        import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { auth, provider } from './firebase-config.js';
+        import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        let currentFolder = "General";
-        let currentFileId = null;
-        let userUid = null;
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userUid = user.uid;
-                // Paso 1: Forzar creación de General si no existe
-                await setDoc(doc(db, "users", userUid, "folders", "General"), { created: serverTimestamp() }, { merge: true });
-                
-                // Paso 2: Iniciar las escuchas
-                initApp();
-            } else { window.location.href = 'login.html'; }
-        });
-
-        function initApp() {
-            // Escuchar Carpetas
-            onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
-                const list = document.getElementById('folder-list');
-                list.innerHTML = '';
-                snap.forEach(d => {
-                    const div = document.createElement('div');
-                    div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
-                    div.innerHTML = `
-                        <span onclick="window.selectFolder('${d.id}')">📁 ${d.id}</span>
-                        <div class="item-actions">
-                            <button class="btn-icon" onclick="window.deleteFolder('${d.id}')">🗑️</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            });
-
-            // Escuchar Archivos
-            const filesRef = collection(db, "users", userUid, "folders", currentFolder, "archivos");
-            onSnapshot(filesRef, (snap) => {
-                const list = document.getElementById('file-list');
-                list.innerHTML = '';
-                snap.forEach(d => {
-                    const div = document.createElement('div');
-                    div.className = `item ${currentFileId === d.id ? 'active' : ''}`;
-                    div.innerHTML = `
-                        <span onclick="window.selectFile('${d.id}')">📄 ${d.data().title}</span>
-                        <div class="item-actions">
-                            <button class="btn-icon" onclick="window.deleteFile('${d.id}')">🗑️</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            });
-        }
-
-        // Definir funciones en window para que el HTML las encuentre
-        window.selectFolder = (name) => {
-            currentFolder = name;
-            currentFileId = null;
-            document.getElementById('folder-label').innerText = name;
-            document.getElementById('input-title').value = "";
-            document.getElementById('textarea-body').value = "";
-            initApp();
-        };
-
-        window.selectFile = async (id) => {
-            currentFileId = id;
-            const d = await getDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
-            if(d.exists()){
-                document.getElementById('input-title').value = d.data().title;
-                document.getElementById('textarea-body').value = d.data().body;
+        document.getElementById('btn-login').onclick = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+                // Usamos replace para que no pueda volver atrás al login
+                window.location.replace('dashboard.html');
+            } catch (error) {
+                console.error("Error:", error);
+                alert("No se pudo iniciar sesión.");
             }
-            initApp();
-        };
-
-        window.deleteFile = async (id) => {
-            if (confirm("¿Borrar archivo?")) {
-                await deleteDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", id));
-                currentFileId = null;
-                document.getElementById('input-title').value = "";
-                document.getElementById('textarea-body').value = "";
-            }
-        };
-
-        window.deleteFolder = async (name) => {
-            if (name === "General") return alert("No puedes borrar la carpeta General");
-            if (confirm(`¿Borrar carpeta ${name}?`)) {
-                await deleteDoc(doc(db, "users", userUid, "folders", name));
-                window.selectFolder("General");
-            }
-        };
-
-        document.getElementById('add-folder').onclick = () => {
-            const n = prompt("Nombre de nueva carpeta:");
-            if(n) setDoc(doc(db, "users", userUid, "folders", n), { created: serverTimestamp() });
-        };
-
-        document.getElementById('add-file').onclick = () => {
-            currentFileId = "file_" + Date.now();
-            document.getElementById('input-title').value = "";
-            document.getElementById('textarea-body').value = "";
-            document.getElementById('input-title').focus();
-        };
-
-        document.getElementById('save-btn').onclick = async () => {
-            const t = document.getElementById('input-title').value;
-            const b = document.getElementById('textarea-body').value;
-            if(!t) return alert("Pon un título");
-            if(!currentFileId) currentFileId = "file_" + Date.now();
-
-            const status = document.getElementById('save-status');
-            status.textContent = "Guardando...";
-            await setDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", currentFileId), {
-                title: t, body: b, updatedAt: serverTimestamp()
-            });
-            status.textContent = "Guardado ✅";
-            setTimeout(() => status.textContent = "", 2000);
         };
     </script>
 </body>
