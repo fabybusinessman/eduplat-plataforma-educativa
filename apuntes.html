@@ -3,33 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Apuntes Pro</title>
+    <title>EduPlat - Gestión de Apuntes</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; }
+        :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
+        /* Sidebar Navegación */
         .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
         .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
-        .explorer { width: 320px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        /* Explorador */
+        .explorer { width: 340px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
         .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; transition: 0.2s; border: 1px solid transparent; }
+        /* Items de lista */
+        .item { 
+            padding: 8px 12px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            font-size: 0.85em; transition: 0.2s; border: 1px solid transparent; 
+        }
         .item:hover { background: #f0f0f0; }
         .item.active { background: var(--primary) !important; color: white !important; }
+        
+        .item-actions { display: none; gap: 5px; }
+        .item:hover .item-actions { display: flex; }
+        
+        .btn-action { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 2px; }
         .btn-small { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
 
+        /* Editor */
         .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
         .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .editor-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
         
         #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); width: 100%; }
         #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; width: 100%; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -39,7 +52,7 @@
         <a href="dashboard.html" class="nav-link">🏠 Dashboard</a>
         <a href="cursos.html" class="nav-link">📚 Cursos</a>
         <a href="apuntes.html" class="nav-link active">📝 Apuntes</a>
-        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:#e74c3c;">🚪 Salir</a>
+        <a href="cerrarsesion.html" class="nav-link" style="margin-top:20px; color:var(--danger);">🚪 Salir</a>
     </nav>
 
     <div class="explorer">
@@ -63,13 +76,13 @@
         </div>
         <div class="editor-body">
             <input type="text" id="input-title" placeholder="Título del archivo...">
-            <textarea id="textarea-body" placeholder="Escribe tus ideas aquí..."></textarea>
+            <textarea id="textarea-body" placeholder="Empieza a escribir tus ideas aquí..."></textarea>
         </div>
     </main>
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, onSnapshot, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, doc, setDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         let currentFolder = "General";
@@ -84,31 +97,58 @@
             } else { window.location.href = 'login.html'; }
         });
 
-        // 1. Gestionar Carpetas
+        // --- GESTIÓN DE CARPETAS ---
         function initCarpetas() {
             onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
                 const list = document.getElementById('folder-list');
                 list.innerHTML = '';
-                if(snap.empty) { createFolder("General"); }
+                if(snap.empty) createFolder("General");
+                
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
-                    div.innerHTML = `📁 ${d.id}`;
-                    div.onclick = () => {
-                        currentFolder = d.id;
-                        currentFileId = null;
-                        document.getElementById('folder-label').innerText = d.id;
-                        document.getElementById('input-title').value = "";
-                        document.getElementById('textarea-body').value = "";
-                        initCarpetas();
-                        initArchivos();
-                    };
+                    div.innerHTML = `
+                        <span onclick="selectFolder('${d.id}')">📁 ${d.id}</span>
+                        <div class="item-actions">
+                            <button class="btn-action" onclick="deleteFolder('${d.id}')">🗑️</button>
+                        </div>
+                    `;
                     list.appendChild(div);
                 });
             });
         }
 
-        // 2. Gestionar Archivos (Filtrados por carpeta)
+        window.selectFolder = (name) => {
+            currentFolder = name;
+            currentFileId = null;
+            document.getElementById('folder-label').innerText = name;
+            document.getElementById('input-title').value = "";
+            document.getElementById('textarea-body').value = "";
+            initCarpetas();
+            initArchivos();
+        };
+
+        async function createFolder(name) {
+            await setDoc(doc(db, "users", userUid, "folders", name), { created: serverTimestamp() });
+        }
+
+        window.deleteFolder = async (name) => {
+            if (name === "General") return alert("No puedes eliminar la carpeta principal.");
+            if (confirm(`¿Eliminar la carpeta "${name}" y todos sus archivos?`)) {
+                // Borrar archivos dentro
+                const q = query(collection(db, "users", userUid, "notes"), where("folder", "==", name));
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                
+                // Borrar carpeta
+                await deleteDoc(doc(db, "users", userUid, "folders", name));
+                selectFolder("General");
+            }
+        };
+
+        // --- GESTIÓN DE ARCHIVOS ---
         function initArchivos() {
             const q = query(collection(db, "users", userUid, "notes"), where("folder", "==", currentFolder));
             onSnapshot(q, (snap) => {
@@ -117,22 +157,38 @@
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFileId === d.id ? 'active' : ''}`;
-                    div.innerHTML = `📄 ${d.data().title || 'Sin título'}`;
-                    div.onclick = () => {
-                        currentFileId = d.id;
-                        document.getElementById('input-title').value = d.data().title;
-                        document.getElementById('textarea-body').value = d.data().body;
-                        initArchivos();
-                    };
+                    div.innerHTML = `
+                        <span onclick="selectFile('${d.id}')">📄 ${d.data().title}</span>
+                        <div class="item-actions">
+                            <button class="btn-action" onclick="deleteFile('${d.id}')">🗑️</button>
+                        </div>
+                    `;
                     list.appendChild(div);
                 });
             });
         }
 
-        async function createFolder(name) {
-            await setDoc(doc(db, "users", userUid, "folders", name), { created: serverTimestamp() });
-        }
+        window.selectFile = (id) => {
+            currentFileId = id;
+            onSnapshot(doc(db, "users", userUid, "notes", id), (d) => {
+                if(d.exists()){
+                    document.getElementById('input-title').value = d.data().title;
+                    document.getElementById('textarea-body').value = d.data().body;
+                }
+            });
+            initArchivos();
+        };
 
+        window.deleteFile = async (id) => {
+            if (confirm("¿Seguro que quieres eliminar este archivo?")) {
+                await deleteDoc(doc(db, "users", userUid, "notes", id));
+                document.getElementById('input-title').value = "";
+                document.getElementById('textarea-body').value = "";
+                currentFileId = null;
+            }
+        };
+
+        // --- BOTONES ---
         document.getElementById('add-folder').onclick = () => {
             const name = prompt("Nombre de la carpeta:");
             if (name) createFolder(name);
@@ -143,34 +199,22 @@
             document.getElementById('input-title').value = "";
             document.getElementById('textarea-body').value = "";
             document.getElementById('input-title').focus();
-            document.getElementById('save-status').textContent = "Nuevo archivo creado";
         };
 
         document.getElementById('save-btn').onclick = async () => {
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('textarea-body').value;
-            if (!title) return alert("Ponle un título al archivo para guardar.");
+            if (!title) return alert("Ponle un título.");
             if (!currentFileId) currentFileId = "file_" + Date.now();
 
             const status = document.getElementById('save-status');
             status.textContent = "Guardando...";
-            status.style.color = "orange";
             
-            try {
-                await setDoc(doc(db, "users", userUid, "notes", currentFileId), {
-                    title: title,
-                    body: body,
-                    folder: currentFolder,
-                    updatedAt: serverTimestamp()
-                });
-                status.textContent = "Guardado ✅";
-                status.style.color = "green";
-                setTimeout(() => status.textContent = "", 2000);
-            } catch (e) {
-                console.error(e);
-                status.textContent = "Error al guardar";
-                status.style.color = "red";
-            }
+            await setDoc(doc(db, "users", userUid, "notes", currentFileId), {
+                title: title, body: body, folder: currentFolder, updatedAt: serverTimestamp()
+            });
+            status.textContent = "Guardado ✅";
+            setTimeout(() => status.textContent = "", 2000);
         };
     </script>
 </body>
