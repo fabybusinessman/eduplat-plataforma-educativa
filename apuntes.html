@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Apuntes</title>
+    <title>EduPlat - Apuntes Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; }
@@ -18,18 +18,18 @@
         .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; transition: 0.2s; }
+        .item { padding: 10px 15px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; transition: 0.2s; border: 1px solid transparent; }
         .item:hover { background: #f0f0f0; }
         .item.active { background: var(--primary) !important; color: white !important; }
-        .btn-small { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        .btn-small { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
 
         .editor { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
         .editor-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .editor-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
         
-        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); }
-        #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        #input-title { border: none; font-size: 1.8rem; font-weight: 600; outline: none; color: var(--primary); width: 100%; }
+        #textarea-body { border: none; flex-grow: 1; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: #444; width: 100%; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
     </style>
 </head>
 <body>
@@ -47,10 +47,10 @@
             <strong>Carpetas</strong>
             <button class="btn-small" id="add-folder">+ Nueva</button>
         </div>
-        <div id="folder-list" class="list-area" style="max-height: 40%;"></div>
+        <div id="folder-list" class="list-area" style="max-height: 40%; border-bottom: 1px solid #eee;"></div>
 
         <div class="section-header">
-            <strong>Archivos en: <span id="folder-label">General</span></strong>
+            <strong>Archivos en: <span id="folder-label" style="color:var(--primary)">General</span></strong>
             <button class="btn-small" id="add-file">+ Nuevo</button>
         </div>
         <div id="file-list" class="list-area"></div>
@@ -58,7 +58,7 @@
 
     <main class="editor">
         <div class="editor-header">
-            <span id="save-status" style="font-size: 0.85em; font-weight: 500;"></span>
+            <span id="save-status" style="font-size: 0.9em; font-weight: 600;"></span>
             <button class="btn-save" id="save-btn">Guardar Apunte</button>
         </div>
         <div class="editor-body">
@@ -79,12 +79,13 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userUid = user.uid;
-                loadApp();
+                initCarpetas();
+                initArchivos();
             } else { window.location.href = 'login.html'; }
         });
 
-        function loadApp() {
-            // Escuchar Carpetas
+        // 1. Gestionar Carpetas
+        function initCarpetas() {
             onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
                 const list = document.getElementById('folder-list');
                 list.innerHTML = '';
@@ -99,19 +100,18 @@
                         document.getElementById('folder-label').innerText = d.id;
                         document.getElementById('input-title').value = "";
                         document.getElementById('textarea-body').value = "";
-                        loadApp();
+                        initCarpetas();
+                        initArchivos();
                     };
                     list.appendChild(div);
                 });
             });
+        }
 
-            // Escuchar Archivos (Sin orderBy para evitar errores de índice)
-            const fileQuery = query(
-                collection(db, "users", userUid, "notes"),
-                where("folder", "==", currentFolder)
-            );
-
-            onSnapshot(fileQuery, (snap) => {
+        // 2. Gestionar Archivos (Filtrados por carpeta)
+        function initArchivos() {
+            const q = query(collection(db, "users", userUid, "notes"), where("folder", "==", currentFolder));
+            onSnapshot(q, (snap) => {
                 const list = document.getElementById('file-list');
                 list.innerHTML = '';
                 snap.forEach(d => {
@@ -122,7 +122,7 @@
                         currentFileId = d.id;
                         document.getElementById('input-title').value = d.data().title;
                         document.getElementById('textarea-body').value = d.data().body;
-                        loadApp();
+                        initArchivos();
                     };
                     list.appendChild(div);
                 });
@@ -141,18 +141,20 @@
         document.getElementById('add-file').onclick = () => {
             currentFileId = "file_" + Date.now();
             document.getElementById('input-title').value = "";
-            document.getElementById('textarea-body').value = "Escribe tus ideas aquí...";
+            document.getElementById('textarea-body').value = "";
             document.getElementById('input-title').focus();
+            document.getElementById('save-status').textContent = "Nuevo archivo creado";
         };
 
         document.getElementById('save-btn').onclick = async () => {
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('textarea-body').value;
-            if (!title) return alert("Ponle un título");
+            if (!title) return alert("Ponle un título al archivo para guardar.");
             if (!currentFileId) currentFileId = "file_" + Date.now();
 
             const status = document.getElementById('save-status');
             status.textContent = "Guardando...";
+            status.style.color = "orange";
             
             try {
                 await setDoc(doc(db, "users", userUid, "notes", currentFileId), {
@@ -167,6 +169,7 @@
             } catch (e) {
                 console.error(e);
                 status.textContent = "Error al guardar";
+                status.style.color = "red";
             }
         };
     </script>
