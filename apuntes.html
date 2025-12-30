@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlat - Gestión de Apuntes</title>
+    <title>EduPlat - Apuntes Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         :root { --primary: #4a90e2; --border: #e1e4e8; --bg: #f8f9fa; --danger: #e74c3c; }
@@ -18,7 +18,7 @@
         .section-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .list-area { flex-grow: 1; overflow-y: auto; padding: 10px; }
         
-        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; transition: 0.2s; }
+        .item { padding: 10px; cursor: pointer; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
         .item:hover { background: #f4f7f6; }
         .item.active { background: var(--primary) !important; color: white !important; }
         .item-actions { display: none; gap: 8px; }
@@ -63,7 +63,7 @@
     <main class="editor">
         <div class="editor-header">
             <span id="save-status" style="font-size: 0.9em; font-weight: 600;"></span>
-            <button class="btn-save" id="save-btn">Guardar Cambios</button>
+            <button class="btn-save" id="save-btn">Guardar Apunte</button>
         </div>
         <div class="editor-body">
             <input type="text" id="input-title" placeholder="Título del archivo...">
@@ -73,34 +73,39 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         let currentFolder = "General";
         let currentFileId = null;
         let userUid = null;
-        let unsubscribeFiles = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userUid = user.uid;
-                initCarpetas();
-                initArchivos();
+                loadFolders();
+                loadFiles();
             } else { window.location.href = 'login.html'; }
         });
 
-        function initCarpetas() {
+        // 1. CARGAR CARPETAS
+        function loadFolders() {
             onSnapshot(collection(db, "users", userUid, "folders"), (snap) => {
                 const list = document.getElementById('folder-list');
                 list.innerHTML = '';
+                
+                // Si no hay nada, crear General
+                if(snap.empty) { 
+                    setDoc(doc(db, "users", userUid, "folders", "General"), { created: serverTimestamp() });
+                }
+
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFolder === d.id ? 'active' : ''}`;
                     div.innerHTML = `
-                        <span onclick="selectFolder('${d.id}')">📁 ${d.id}</span>
+                        <span onclick="window.selectFolder('${d.id}')">📁 ${d.id}</span>
                         <div class="item-actions">
-                            <button class="btn-icon" onclick="renameFolder('${d.id}')">✏️</button>
-                            <button class="btn-icon" onclick="deleteFolder('${d.id}')">🗑️</button>
+                            <button class="btn-icon" onclick="window.deleteFolder('${d.id}')">🗑️</button>
                         </div>
                     `;
                     list.appendChild(div);
@@ -108,54 +113,36 @@
             });
         }
 
-        window.selectFolder = (name) => {
-            currentFolder = name;
-            currentFileId = null;
-            document.getElementById('folder-label').innerText = name;
-            document.getElementById('input-title').value = "";
-            document.getElementById('textarea-body').value = "";
-            initArchivos();
-            initCarpetas();
-        };
-
-        window.renameFolder = async (oldName) => {
-            if (oldName === "General") return alert("No puedes renombrar General");
-            const newName = prompt("Nuevo nombre:", oldName);
-            if (newName && newName !== oldName) {
-                await setDoc(doc(db, "users", userUid, "folders", newName), { created: serverTimestamp() });
-                await deleteDoc(doc(db, "users", userUid, "folders", oldName));
-                selectFolder(newName);
-            }
-        };
-
-        window.deleteFolder = async (name) => {
-            if (name === "General") return alert("No puedes borrar General");
-            if (confirm(`¿Borrar carpeta ${name}?`)) {
-                await deleteDoc(doc(db, "users", userUid, "folders", name));
-                selectFolder("General");
-            }
-        };
-
-        function initArchivos() {
-            if (unsubscribeFiles) unsubscribeFiles();
-            
+        // 2. CARGAR ARCHIVOS
+        function loadFiles() {
             const filesRef = collection(db, "users", userUid, "folders", currentFolder, "archivos");
-            unsubscribeFiles = onSnapshot(filesRef, (snap) => {
+            onSnapshot(filesRef, (snap) => {
                 const list = document.getElementById('file-list');
                 list.innerHTML = '';
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `item ${currentFileId === d.id ? 'active' : ''}`;
                     div.innerHTML = `
-                        <span onclick="selectFile('${d.id}')">📄 ${d.data().title}</span>
+                        <span onclick="window.selectFile('${d.id}')">📄 ${d.data().title}</span>
                         <div class="item-actions">
-                            <button class="btn-icon" onclick="deleteFile('${d.id}')">🗑️</button>
+                            <button class="btn-icon" onclick="window.deleteFile('${d.id}')">🗑️</button>
                         </div>
                     `;
                     list.appendChild(div);
                 });
             });
         }
+
+        // FUNCIONES GLOBALES (Window)
+        window.selectFolder = (name) => {
+            currentFolder = name;
+            currentFileId = null;
+            document.getElementById('folder-label').innerText = name;
+            document.getElementById('input-title').value = "";
+            document.getElementById('textarea-body').value = "";
+            loadFolders(); // Para actualizar clase active
+            loadFiles();   // Cargar archivos de esta carpeta
+        };
 
         window.selectFile = async (id) => {
             currentFileId = id;
@@ -163,8 +150,8 @@
             if(d.exists()){
                 document.getElementById('input-title').value = d.data().title;
                 document.getElementById('textarea-body').value = d.data().body;
-                initArchivos();
             }
+            loadFiles(); // Para actualizar clase active
         };
 
         window.deleteFile = async (id) => {
@@ -176,8 +163,17 @@
             }
         };
 
+        window.deleteFolder = async (name) => {
+            if (name === "General") return alert("No puedes borrar General");
+            if (confirm(`¿Borrar carpeta ${name}?`)) {
+                await deleteDoc(doc(db, "users", userUid, "folders", name));
+                window.selectFolder("General");
+            }
+        };
+
+        // EVENTOS DE BOTONES
         document.getElementById('add-folder').onclick = () => {
-            const n = prompt("Nombre:");
+            const n = prompt("Nombre de carpeta:");
             if(n) setDoc(doc(db, "users", userUid, "folders", n), { created: serverTimestamp() });
         };
 
@@ -198,7 +194,6 @@
             status.textContent = "Guardando...";
             
             try {
-                // RUTA CORRECTA: users > UID > folders > CarpetaNombre > archivos > ID_Archivo
                 await setDoc(doc(db, "users", userUid, "folders", currentFolder, "archivos", currentFileId), {
                     title: t,
                     body: b,
