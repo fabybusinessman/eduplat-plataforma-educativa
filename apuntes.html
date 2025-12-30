@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPlat - Mis Apuntes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2;
+            --background-light: #f8f9fa;
+            --background-white: #ffffff;
+            --text-dark: #343a40;
+            --text-light: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-light); color: var(--text-dark); display: flex; }
+
+        /* --- Sidebar (Igual al Dashboard) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--background-white);
+            height: 100vh;
+            position: fixed;
+            border-right: 1px solid var(--border-color);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-menu { list-style: none; flex-grow: 1; }
+        .nav-item { margin-bottom: 10px; }
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+            gap: 12px;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #eef5ff;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* --- Main Content --- */
+        .main-content { margin-left: 260px; width: 100%; padding: 30px; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+
+        /* --- Area de Apuntes --- */
+        .notes-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .notes-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #notes-area {
+            width: 100%;
+            height: 500px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #notes-area:focus { border-color: var(--primary-color); }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-save:hover { background-color: #3a7ac8; }
+        
+        #save-status { font-size: 0.85rem; color: var(--text-light); }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="dashboard.html" class="sidebar-logo">🎓 EduPlat</a>
+        <nav class="nav-menu">
+            <li class="nav-item"><a href="dashboard.html" class="nav-link">🏠 Dashboard</a></li>
+            <li class="nav-item"><a href="cursos.html" class="nav-link">📚 Mis Cursos</a></li>
+            <li class="nav-item"><a href="calendario.html" class="nav-link">📅 Calendario</a></li>
+            <li class="nav-item"><a href="apuntes.html" class="nav-link active">📝 Apuntes</a></li>
+            <li class="nav-item"><a href="configuracion.html" class="nav-link">⚙️ Configuración</a></li>
+            <li class="nav-item" style="margin-top: 50px;">
+                <a href="cerrarsesion.html" class="nav-link" style="color: #dc3545;">🚪 Cerrar Sesión</a>
+            </li>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>Mis Apuntes</h1>
+            <div class="user-profile">
+                <span id="user-name-header" style="font-weight: 500; font-size: 0.9em;">Usuario</span>
+                <img id="user-photo-header" src="" alt="Perfil" class="profile-img">
+            </div>
+        </header>
+
+        <section class="notes-card">
+            <div class="notes-title">
+                <h2>Block de Notas Interactivo 📝</h2>
+                <span id="save-status">Todos los cambios están al día</span>
+            </div>
+            <textarea id="notes-area" placeholder="Comienza a escribir tus apuntes aquí..."></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+                <button id="btn-save-notes" class="btn-save">Guardar Ahora</button>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const notesArea = document.getElementById('notes-area');
+        const btnSave = document.getElementById('btn-save-notes');
+        const saveStatus = document.getElementById('save-status');
+
+        // Cargar datos de perfil del localStorage
+        document.getElementById('user-name-header').textContent = localStorage.getItem('user_name') || 'Usuario';
+        document.getElementById('user-photo-header').src = localStorage.getItem('user_photo') || '';
+
+        // Lógica para cargar y guardar notas en Firebase
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docRef = doc(db, "apuntes", user.uid);
+                
+                // 1. Cargar notas existentes
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    notesArea.value = docSnap.data().contenido;
+                }
+
+                // 2. Guardar notas al hacer clic
+                btnSave.addEventListener('click', async () => {
+                    saveStatus.textContent = "Guardando...";
+                    try {
+                        await setDoc(docRef, {
+                            contenido: notesArea.value,
+                            ultima_actualizacion: new Date()
+                        });
+                        saveStatus.textContent = "Guardado exitosamente ✅";
+                        setTimeout(() => {
+                            saveStatus.textContent = "Todos los cambios están al día";
+                        }, 3000);
+                    } catch (error) {
+                        console.error("Error al guardar:", error);
+                        saveStatus.textContent = "Error al guardar ❌";
+                    }
+                });
+            } else {
+                // Si no está logueado, mandarlo al login
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
