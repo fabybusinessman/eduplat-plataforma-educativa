@@ -11,15 +11,20 @@
         body { background: var(--bg); display: flex; height: 100vh; color: #333; }
 
         .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
-        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
-        .nav-link:hover { background: #f4f7f6; }
+        .nav-link { display: block; padding: 12px; color: #666; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: #eef5ff; color: var(--primary); font-weight: 600; }
 
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .welcome-card { background: white; padding: 30px; border-radius: 15px; border: 1px solid var(--border); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-card h3 { color: var(--primary); font-size: 24px; }
+        .header { margin-bottom: 30px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { 
+            background: white; padding: 25px; border-radius: 12px; 
+            border: 1px solid var(--border); transition: 0.2s; cursor: pointer;
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .card h3 { color: var(--primary); margin-bottom: 10px; }
+        .card p { color: #666; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -33,23 +38,19 @@
     </nav>
 
     <main class="main-content">
-        <div class="welcome-card">
-            <h1 id="user-name">Cargando...</h1>
-            <p>¿Qué quieres aprender hoy?</p>
+        <div class="header">
+            <h1 id="user-welcome">Cargando...</h1>
+            <p>Bienvenido a tu panel de control.</p>
         </div>
 
         <div class="grid">
-            <div class="stat-card">
-                <h3>0</h3>
-                <p>Cursos Activos</p>
+            <div class="card" onclick="location.href='cursos.html'">
+                <h3>📚 Mis Cursos</h3>
+                <p>Accede a tus materiales de estudio y clases guardadas.</p>
             </div>
-            <div class="stat-card" style="cursor:pointer" onclick="window.location.href='apuntes.html'">
-                <h3>📝</h3>
-                <p>Ir a mis Apuntes</p>
-            </div>
-            <div class="stat-card">
-                <h3>📅</h3>
-                <p>Calendario</p>
+            <div class="card" onclick="location.href='apuntes.html'">
+                <h3>📝 Gestión de Apuntes</h3>
+                <p>Crea, edita y organiza tus carpetas de apuntes personales.</p>
             </div>
         </div>
     </main>
@@ -60,7 +61,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('user-name').innerText = "¡Bienvenido, " + (user.displayName || 'Estudiante') + "!";
+                document.getElementById('user-welcome').innerText = "¡Hola, " + user.displayName + "!";
             } else {
                 window.location.replace('login.html');
             }
